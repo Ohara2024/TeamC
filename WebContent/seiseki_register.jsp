@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; }
         .main { padding: 20px; max-width: 800px; margin: 0 auto; background: #fff; border: 1px solid #ccc; }
         .filter-form { display: flex; gap: 10px; margin-bottom: 20px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; align-items: flex-end; justify-content: space-between; }
-        .filter-form .filter-group { display: flex; gap: 10px; }
+        .filter-form .filter-group { display: flex; gap: 40px; }
         .filter-form .filter-group div { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
         select, input[type="number"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; background-color: white; }
         table { border-collapse: collapse; width: 100%; border: 1px solid #ddd; }
