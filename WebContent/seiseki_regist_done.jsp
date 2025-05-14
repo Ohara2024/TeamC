@@ -15,10 +15,10 @@ as<%@ page import="java.sql.*" %>
     <div class="banner">登録を完了しました</div>
     <div class="main">
         <a href="seiseki_register.jsp" class="button">戻る</a>
-        
-        
+
+
       ]]
-      
+
       efssefgdrhtg        <a href="seiseki_register.jsp" class="button">成績管理</a>
     </div>
 </body></html>
