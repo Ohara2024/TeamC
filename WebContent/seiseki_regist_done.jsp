@@ -1,5 +1,5 @@
- language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-as<%@ page import="java.sql.*" %>
+ <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,13 +12,15 @@ as<%@ page import="java.sql.*" %>
     </style>
 </head>
 <body>
+<%@ include file="header.jsp" %>
+<%@ include file="sidebar.jsp" %>
+<br><br><br><br><br><br>
     <div class="banner">登録を完了しました</div>
     <div class="main">
         <a href="seiseki_register.jsp" class="button">戻る</a>
- 
-
-      ]]
-
-      efssefgdrhtg        <a href="seiseki_register.jsp" class="button">成績管理</a>
+        <a href="seiseki_register.jsp" class="button">成績管理</a>
     </div>
-</body></html>
+    <%@ include file="footer.jsp" %>
+</body>
+
+</html>

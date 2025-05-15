@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,7 +19,11 @@
     </style>
 </head>
 <body>
+<%@ include file="sidebar.jsp" %>
+<%@ include file="header.jsp" %>
+
 <div class="main">
+    <br><br><br><br>
     <!-- フィルタリングフォーム -->
     <form method="get" class="filter-form">
         <div class="filter-group">
@@ -226,5 +231,6 @@
     }
     %>
 </div>
+<%@ include file="footer.jsp" %>
 </body>
 </html>
