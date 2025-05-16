@@ -71,7 +71,10 @@
 
     <div class="login-box">
         <h2>ログイン</h2>
-        <form action="LoginServlet" method="post">
+       <form action="<%= request.getContextPath() %>/FrontController" method="post">
+  <input type="hidden" name="action" value="Login">
+
+
             <input type="text" name="id" class="form-control" placeholder="ID">
             <input type="password" name="password" class="form-control" id="passwordField" placeholder="パスワード">
 
