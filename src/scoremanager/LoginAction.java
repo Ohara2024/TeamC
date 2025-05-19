@@ -24,11 +24,11 @@ public class LoginAction implements Action {
             session.setAttribute("name", teacher.getName());  // 名前をセッションに保存
             session.setAttribute("teacher", teacher);         // オブジェクトも保存（任意）
 
-            response.sendRedirect("/menu.jsp");
+            response.sendRedirect("menu.jsp");
         } else {
             // ログイン失敗ならエラーを設定してログイン画面にフォワード
             request.setAttribute("error", "IDかパスワードが違います");
-            RequestDispatcher rd = request.getRequestDispatcher("/login.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
             rd.forward(request, response);
         }
     }
