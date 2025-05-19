@@ -28,7 +28,7 @@ public class LoginExecuteAction implements Action {
             rd.forward(req, res);
         } else {
             req.setAttribute("error", "IDまたはパスワードが間違っています");
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/gakusei/login.jsp");
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/login.jsp");
             dispatcher.forward(req, res);
         }
 
