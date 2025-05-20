@@ -1,220 +1,305 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, bean.ScoreBean" %>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>成績検索フォーム</title>
+    <title>成績一覧（科目）</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 20px 20px 0;
-        }
-        .search-section {
-            background-color: white;
+            background-color: #f5f5f5;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .main-content {
+            margin-left: 220px; /* サイドバーの幅(200px)＋余白(10px) */
+            padding: 10px;
+        }
+        h2 {
             margin-bottom: 20px;
+            color: #333;
         }
-        .form-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
+        h3 {
+            margin: 15px 0; /* 枠との間隔を調整 */
+            color: #333;
+            font-size: 1.2em;
         }
-        .form-group label {
-            width: 100px;
-            font-weight: bold;
+        .filter-section {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filter-section label {
             margin-right: 10px;
+            font-weight: bold;
+            color: #555;
         }
-        .form-group input[type="text"] {
-            flex: 1;
-            padding: 5px;
-            border: 1px solid #ced4da;
+        .filter-section select, .filter-section input[type="text"] {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
             border-radius: 4px;
+            background-color: #f9f9f9;
+            width: 150px;
         }
-        .form-group button {
-            padding: 5px 15px;
-            background-color: #007bff;
+        .filter-section input[type="submit"] {
+            padding: 8px 15px;
+            background-color: #666;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-left: 10px;
         }
-        .form-group button:hover {
-            background-color: #0056b3;
-        }
-        .result-section {
-            margin-top: 10px;
-            display: none;
-        }
-        .result-section.active {
-            display: block;
+        .filter-section input[type="submit"]:hover {
+            background-color: #555;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         th, td {
-            border: 1px solid #dee2e6;
-            padding: 8px;
+            border: 1px solid #ddd;
+            padding: 10px;
             text-align: left;
         }
         th {
-            background-color: #f8f9fa;
+            background-color: #f2f2f2;
+            color: #333;
         }
-        .error-message {
-            color: red;
-            margin: 5px 0;
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .message {
+            color: #d9534f;
+            margin-top: 10px;
+            font-weight: bold;
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #f8d7da;
+            border-radius: 4px;
+        }
+        /* レスポンシブ対応：画面幅が狭い場合、サイドバーを非表示にし、コンテンツを全幅に */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0; /* サイドバーがないのでマージンをリセット */
+            }
+            .sidebar {
+                display: none; /* サイドバーを非表示 */
+            }
         }
     </style>
 </head>
 <body>
-    <div class="search-section">
-        <!-- クラス単位の成績検索 -->
-        <div class="form-group">
-            <label>入学年度:</label>
-            <input type="text" name="entYear" placeholder="例: 2022">
-            <label>クラス番号:</label>
-            <input type="text" name="classNum" placeholder="例: 201">
-            <label>科目名:</label>
-            <input type="text" name="subject" placeholder="例: 数学">
-            <button type="submit" formaction="ScoreSearchServlet" formmethod="get" onclick="showResult('classResult')">検索</button>
-        </div>
-        <%
-            String error = (String) request.getAttribute("error");
-            if (error != null) {
-        %>
-            <p class="error-message"><%= error %></p>
-        <%
-            }
-            List<ScoreBean> classScoreList = (List<ScoreBean>) request.getAttribute("classScoreList");
-            if (classScoreList != null) {
-        %>
-            <div id="classResult" class="result-section active">
-                <h3>クラス別成績一覧</h3>
-                <table>
-                    <tr>
-                        <th>学生番号</th>
-                        <th>学生名</th>
-                        <th>得点</th>
-                    </tr>
-                    <%
-                        try {
-                            if (classScoreList != null && !classScoreList.isEmpty()) {
-                                for (ScoreBean score : classScoreList) {
-                                    if (score != null) {
-                    %>
-                    <tr>
-                        <td><%= score.getNo() != null ? score.getNo() : "N/A" %></td>
-                        <td><%= score.getName() != null ? score.getName() : "N/A" %></td>
-                        <td><%= score.getScore() %></td>
-                    </tr>
-                    <%
-                                    }
-                                }
-                            } else {
-                    %>
-                    <tr>
-                        <td colspan="3">該当する成績データが見つかりませんでした。</td>
-                    </tr>
-                    <%
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                    %>
-                    <tr>
-                        <td colspan="3" class="error-message">エラーが発生しました: <%= e.getMessage() %></td>
-                    </tr>
-                    <%
-                        }
-                    %>
-                </table>
-            </div>
-        <%
-            }
-        %>
+<%@ include file="header.jsp" %>
+<%@ include file="sidebar.jsp" %>
 
-        <!-- 学生単位の成績検索 -->
-        <div class="form-group">
-            <label>学生番号:</label>
-            <input type="text" name="studentNo" placeholder="例: 2225001">
-            <button type="submit" formaction="ScoreSearchByStudentServlet" formmethod="post" onclick="showResult('studentResult')">検索</button>
-        </div>
-        <%
-            String studentError = (String) request.getAttribute("studentError");
-            if (studentError != null) {
-        %>
-            <p class="error-message"><%= studentError %></p>
-        <%
+<div class="main-content">
+    <h2>成績一覧</h2>
+
+    <!-- 科目情報 (一段目) -->
+    <h2>成績参照</h2>
+    <div class="filter-section">
+        <form method="get">
+            <label>科目情報</label>
+            <label>入学年度</label>
+            <select name="ent_year">
+                <option value="">--------</option>
+                <% 
+                String selectedEntYear = request.getParameter("ent_year") != null ? request.getParameter("ent_year") : "";
+                try {
+                    Class.forName("org.h2.Driver");
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
+                    while (rs.next()) {
+                        int year = rs.getInt("ENT_YEAR");
+                        String selected = String.valueOf(year).equals(selectedEntYear) ? "selected" : "";
+                        out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
+                    }
+                    rs.close(); stmt.close(); conn.close();
+                } catch(Exception e) {
+                    out.println("エラー: " + e.getMessage());
+                }
+                %>
+            </select>
+
+            <label>クラス</label>
+            <select name="class_num">
+                <option value="">--------</option>
+                <% 
+                String selectedClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : "";
+                try {
+                    Class.forName("org.h2.Driver");
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                    while (rs.next()) {
+                        String classNum = rs.getString("CLASS_NUM");
+                        String selected = classNum.equals(selectedClassNum) ? "selected" : "";
+                        out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
+                    }
+                    rs.close(); stmt.close(); conn.close();
+                } catch(Exception e) {
+                    out.println("エラー: " + e.getMessage());
+                }
+                %>
+            </select>
+
+            <label>科目</label>
+            <select name="subject_cd">
+                <option value="">--------</option>
+                <% 
+                String selectedSubjectCd = request.getParameter("subject_cd") != null ? request.getParameter("subject_cd") : "";
+                try {
+                    Class.forName("org.h2.Driver");
+                    Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT SCHOOL_CD, CD, NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
+                    while (rs.next()) {
+                        String schoolCd = rs.getString("SCHOOL_CD");
+                        String cd = rs.getString("CD");
+                        String name = rs.getString("NAME");
+                        String value = schoolCd + "_" + cd;
+                        String selected = value.equals(selectedSubjectCd) ? "selected" : "";
+                        out.println("<option value='" + value + "' " + selected + ">" + name + "</option>");
+                    }
+                    rs.close(); stmt.close(); conn.close();
+                } catch(Exception e) {
+                    out.println("エラー: " + e.getMessage());
+                }
+                %>
+            </select>
+
+            <input type="submit" value="検索">
+            <%
+            boolean searched = (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) || 
+                              (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) || 
+                              (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) || 
+                              (request.getParameter("subject_cd") != null && !request.getParameter("subject_cd").isEmpty());
+
+            boolean allSubjectConditionsEmpty = (request.getParameter("ent_year") == null || request.getParameter("ent_year").isEmpty()) &&
+                                               (request.getParameter("class_num") == null || request.getParameter("class_num").isEmpty()) &&
+                                               (request.getParameter("subject_cd") == null || request.getParameter("subject_cd").isEmpty());
+
+            if (searched && allSubjectConditionsEmpty && (request.getParameter("student_no") == null || request.getParameter("student_no").isEmpty())) {
+                out.println("<p class='message'>① 入学年度とクラスと科目を選択してください</p>");
             }
-            List<ScoreBean> studentScoreList = (List<ScoreBean>) request.getAttribute("studentScoreList");
-            String studentNo = (String) request.getAttribute("studentNo");
-            if (studentScoreList != null) {
-        %>
-            <div id="studentResult" class="result-section active">
-                <h3>学生別成績一覧</h3>
-                <% if (studentNo != null) { %>
-                    <p>学生番号: <%= studentNo %></p>
-                <% } %>
-                <table>
-                    <tr>
-                        <th>学生番号</th>
-                        <th>学生名</th>
-                        <th>科目名</th>
-                        <th>試験番号</th>
-                        <th>得点</th>
-                    </tr>
-                    <%
-                        try {
-                            if (studentScoreList != null && !studentScoreList.isEmpty()) {
-                                for (ScoreBean score : studentScoreList) {
-                                    if (score != null) {
-                    %>
-                    <tr>
-                        <td><%= score.getNo() != null ? score.getNo() : "N/A" %></td>
-                        <td><%= score.getName() != null ? score.getName() : "N/A" %></td>
-                        <td><%= score.getSubjectName() != null ? score.getSubjectName() : "N/A" %></td>
-                        <td><%= score.getTestNo() %></td>
-                        <td><%= score.getScore() %></td>
-                    </tr>
-                    <%
-                                    }
-                                }
-                            } else if (studentNo != null) {
-                    %>
-                    <tr>
-                        <td colspan="5">該当する成績データが見つかりませんでした。</td>
-                    </tr>
-                    <%
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                    %>
-                    <tr>
-                        <td colspan="5" class="error-message">エラーが発生しました: <%= e.getMessage() %></td>
-                    </tr>
-                    <%
-                        }
-                    %>
-                </table>
-            </div>
-        <%
-            }
-        %>
+            %>
+        </form>
     </div>
 
-    <script>
-        function showResult(id) {
-            document.querySelectorAll('.result-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(id).classList.add('active');
+    <!-- 学生情報 (二段目) -->
+    <div class="filter-section">
+        <form method="get">
+            <label>学生情報</label>
+            <label>学生番号</label>
+            <input type="text" name="student_no" value="<%= request.getParameter("student_no") != null ? request.getParameter("student_no") : "" %>" placeholder="学生番号を入力">
+            <input type="submit" value="検索">
+        </form>
+    </div>
+
+    <%
+    if (searched && !allSubjectConditionsEmpty || (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty())) {
+        try {
+            Class.forName("org.h2.Driver");
+            Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+            Statement stmt = conn.createStatement();
+            String query = "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
+                           "FROM TEST T " +
+                           "JOIN STUDENT S ON T.STUDENT_NO = S.NO " +
+                           "JOIN SUBJECT SU ON T.SCHOOL_CD = SU.SCHOOL_CD AND T.SUBJECT_CD = SU.CD " +
+                           "WHERE 1=1";
+            if (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) {
+                query += " AND S.ENT_YEAR = " + request.getParameter("ent_year");
+            }
+            if (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) {
+                query += " AND T.CLASS_NUM = '" + request.getParameter("class_num") + "'";
+            }
+            if (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) {
+                query += " AND T.STUDENT_NO = '" + request.getParameter("student_no") + "'";
+            }
+            if (request.getParameter("subject_cd") != null && !request.getParameter("subject_cd").isEmpty()) {
+                String[] subjectParts = request.getParameter("subject_cd").split("_");
+                query += " AND T.SCHOOL_CD = '" + subjectParts[0] + "' AND T.SUBJECT_CD = '" + subjectParts[1] + "'";
+            }
+            ResultSet rs = stmt.executeQuery(query);
+
+            java.util.Map<String, java.util.Map<String, java.util.Map<String, Object>>> groupedData = new java.util.HashMap<>();
+            while (rs.next()) {
+                String studentNo = rs.getString("STUDENT_NO");
+                String subjectName = rs.getString("SUBJECT_NAME");
+                int entYear = rs.getInt("ENT_YEAR");
+                String classNum = rs.getString("CLASS_NUM");
+                String name = rs.getString("NAME");
+                int testNo = rs.getInt("NO");
+                Integer point = rs.getObject("POINT") != null ? rs.getInt("POINT") : null;
+
+                groupedData.putIfAbsent(studentNo, new java.util.HashMap<String, java.util.Map<String, Object>>());
+                groupedData.get(studentNo).putIfAbsent(subjectName, new java.util.HashMap<String, Object>());
+                
+                java.util.Map<String, Object> subjectData = groupedData.get(studentNo).get(subjectName);
+                if (!subjectData.containsKey("ENT_YEAR")) {
+                    subjectData.put("ENT_YEAR", entYear);
+                }
+                if (!subjectData.containsKey("CLASS_NUM")) {
+                    subjectData.put("CLASS_NUM", classNum != null ? classNum : "未設定");
+                }
+                if (!subjectData.containsKey("NAME")) {
+                    subjectData.put("NAME", name != null ? name : "不明");
+                }
+                subjectData.put("TEST_" + testNo, point);
+            }
+
+            if (groupedData.isEmpty()) {
+                out.println("<p class='message'>学生情報が存在しませんでした</p>");
+            } else {
+                %>
+                <table>
+                    <tr>
+                        <th>入学年度</th>
+                        <th>クラス</th>
+                        <th>学生番号</th>
+                        <th>名前</th>
+                        <th>科目</th>
+                        <th>1回目</th>
+                        <th>2回目</th>
+                    </tr>
+                    <% 
+                    for (String studentNo : groupedData.keySet()) {
+                        for (String subjectName : groupedData.get(studentNo).keySet()) {
+                            java.util.Map<String, Object> data = groupedData.get(studentNo).get(subjectName);
+                            out.println("<tr>");
+                            out.println("<td>" + (data.get("ENT_YEAR") != null ? data.get("ENT_YEAR") : "未設定") + "</td>");
+                            out.println("<td>" + (data.get("CLASS_NUM") != null ? data.get("CLASS_NUM") : "未設定") + "</td>");
+                            out.println("<td>" + studentNo + "</td>");
+                            out.println("<td>" + (data.get("NAME") != null ? data.get("NAME") : "不明") + "</td>");
+                            out.println("<td>" + subjectName + "</td>");
+                            out.println("<td>" + (data.get("TEST_1") != null ? data.get("TEST_1") : "") + "</td>");
+                            out.println("<td>" + (data.get("TEST_2") != null ? data.get("TEST_2") : "") + "</td>");
+                            out.println("</tr>");
+                        }
+                    }
+                    %>
+                </table>
+                <%
+            }
+            rs.close(); stmt.close(); conn.close();
+        } catch(Exception e) {
+            out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
         }
-    </script>
+    } else if (!searched) {
+        out.println("<p class='message'>検索条件を指定してください。</p>");
+    }
+    %>
+</div>
+
+<%@ include file="footer.jsp" %>
 </body>
 </html>
