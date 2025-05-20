@@ -1,4 +1,4 @@
-package scoremanager.main;
+package dao;
 
 import java.io.IOException;
 
@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import bean.Test;
-import dao.TestDao;
+import scoremanager.main.Action;
 
 /**
  * テスト登録の実行処理を行うアクション
