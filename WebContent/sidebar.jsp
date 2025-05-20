@@ -3,7 +3,7 @@
     <ul>
     	<br>
     	<br>
-        <li><a href="#">メニュー</a></li>
+        <li><a href="menu.jsp">メニュー</a></li>
         <li><a href="student_list.jsp">学生管理</a></li>
         <li><a href="#">成績管理</a></li>
         <li><a href="#">　成績登録</a></li>
