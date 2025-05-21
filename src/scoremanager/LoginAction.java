@@ -28,7 +28,7 @@ public class LoginAction implements Action {
         } else {
             // ログイン失敗ならエラーを設定してログイン画面にフォワード
             request.setAttribute("error", "IDかパスワードが違います");
-            RequestDispatcher rd = request.getRequestDispatcher("login.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("login.jsp"); 
             rd.forward(request, response);
         }
     }
