@@ -17,10 +17,9 @@
 <br><br><br><br><br>
     <div class="banner">登録を完了しました</div>
     <div class="main">
-        <a href="seiseki_register.jsp" class="button">戻る</a>
-        <a href="seiseki_register.jsp" class="button">成績管理</a>
+        <a href="seiseki_regist.jsp" class="button">戻る</a>
+        <a href="seiseki_regist.jsp" class="button">成績管理</a>
     </div>
     <%@ include file="footer.jsp" %>
->>>>>>> refs/heads/山火事
 </body>
 </html>

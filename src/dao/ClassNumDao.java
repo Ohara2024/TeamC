@@ -21,10 +21,9 @@ public class ClassNumDao extends Dao {
     /**
      * クラス番号を全件取得
      * @return クラス番号リスト
-     * @throws SQLException データベース操作エラー
-     * @throws NamingException JNDIルックアップエラー
+     * @throws Exception
      */
-    public List<ClassNum> findAll() throws SQLException, NamingException {
+    public List<ClassNum> findAll() throws Exception {
         List<ClassNum> classNums = new ArrayList<>();
         String sql = "SELECT SCHOOL_CD, CLASS_NUM FROM CLASS_NUM";
         try (Connection conn = getConnection();
