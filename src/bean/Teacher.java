@@ -1,15 +1,16 @@
 package bean;
 
 public class Teacher {
-    private String id;        // ID
-    private String password;  // PASSWORD
-    private String name;      // NAME
-    private String schoolCd;  // SCHOOL_CD
+    private String id;           // ID
+    private String password;     // PASSWORD
+    private String name;         // NAME
+    private String schoolCd;     // SCHOOL_CD
+    private boolean authenticated = false;  // 認証フラグ（追加）
 
     // デフォルトコンストラクタ
     public Teacher() {}
 
-    // 全フィールド指定コンストラクタ
+    // 全フィールド指定コンストラクタ（認証フラグは除く）
     public Teacher(String id, String password, String name, String schoolCd) {
         this.id = id;
         this.password = password;
@@ -18,6 +19,7 @@ public class Teacher {
     }
 
     // ゲッターとセッター
+
     public String getId() {
         return id;
     }
@@ -48,5 +50,15 @@ public class Teacher {
 
     public void setSchoolCd(String schoolCd) {
         this.schoolCd = schoolCd;
+    }
+
+    // 認証フラグのgetterとsetter
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
     }
 }

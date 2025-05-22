@@ -1,28 +1,9 @@
 package bean;
 
 public class Subject {
-    private String schoolCd;  // SCHOOL_CD
-    private String cd;        // CD
-    private String name;      // NAME
-
-    // デフォルトコンストラクタ
-    public Subject() {}
-
-    // 全フィールド指定コンストラクタ
-    public Subject(String schoolCd, String cd, String name) {
-        this.schoolCd = schoolCd;
-        this.cd = cd;
-        this.name = name;
-    }
-
-    // ゲッターとセッター
-    public String getSchoolCd() {
-        return schoolCd;
-    }
-
-    public void setSchoolCd(String schoolCd) {
-        this.schoolCd = schoolCd;
-    }
+    private String cd;
+    private String name;
+    private School school;
 
     public String getCd() {
         return cd;
@@ -38,5 +19,18 @@ public class Subject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public School getSchool() {
+        return school;
+    }
+
+    public void setSchool(School school) {
+        this.school = school;
+    }
+
+    @Override
+    public String toString() {
+        return "Subject{cd='" + cd + "', name='" + name + "', school=" + school + "}";
     }
 }
