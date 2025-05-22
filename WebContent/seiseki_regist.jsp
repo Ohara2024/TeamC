@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.*, seiseki.DBConnection" %>
 
 <!DOCTYPE html>
 <html>
@@ -36,8 +36,7 @@
                     Statement stmt = null;
                     ResultSet rs = null;
                     try {
-                        Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                        conn = DBConnection.getConnection();
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM STUDENT ORDER BY ENT_YEAR");
                         while(rs.next()) {
@@ -47,9 +46,9 @@
                     } catch(Exception e) {
                         out.println("エラー: " + e.getMessage());
                     } finally {
-                        if(rs != null) rs.close();
-                        if(stmt != null) stmt.close();
-                        if(conn != null) conn.close();
+                        if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
+                        if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
+                        if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
                     }
                     %>
                 </select>
@@ -60,8 +59,7 @@
                     <option value="">すべて</option>
                     <%
                     try {
-                        Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                        conn = DBConnection.getConnection();
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                         while(rs.next()) {
@@ -71,9 +69,9 @@
                     } catch(Exception e) {
                         out.println("エラー: " + e.getMessage());
                     } finally {
-                        if(rs != null) rs.close();
-                        if(stmt != null) stmt.close();
-                        if(conn != null) conn.close();
+                        if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
+                        if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
+                        if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
                     }
                     %>
                 </select>
@@ -84,21 +82,20 @@
                     <option value="">すべて</option>
                     <%
                     try {
-                        Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                        conn = DBConnection.getConnection();
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT CD, NAME FROM SUBJECT ORDER BY CD");
                         while(rs.next()) {
                             String cd = rs.getString("CD");
-                            String name = rs.getString("NAME");
-                            out.println("<option value=\"" + cd + "\">" + name + "</option>");
+                            String subjectName = rs.getString("NAME");
+                            out.println("<option value=\"" + cd + "\">" + subjectName + "</option>");
                         }
                     } catch(Exception e) {
                         out.println("エラー: " + e.getMessage());
                     } finally {
-                        if(rs != null) rs.close();
-                        if(stmt != null) stmt.close();
-                        if(conn != null) conn.close();
+                        if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
+                        if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
+                        if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
                     }
                     %>
                 </select>
@@ -121,11 +118,11 @@
     <%
     if("POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("action") != null && request.getParameter("action").equals("update")) {
         Connection connUpdate = null;
+        PreparedStatement pstmt = null;
         try {
-            Class.forName("org.h2.Driver");
-            connUpdate = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+            connUpdate = DBConnection.getConnection();
             String sql = "UPDATE TEST SET POINT = ? WHERE STUDENT_NO = ? AND SUBJECT_CD = ? AND SCHOOL_CD = ? AND NO = ?";
-            PreparedStatement pstmt = connUpdate.prepareStatement(sql);
+            pstmt = connUpdate.prepareStatement(sql);
 
             int index = 0;
             while(request.getParameter("point[" + index + "]") != null) {
@@ -147,7 +144,8 @@
         } catch(Exception e) {
             out.println("更新エラー: " + e.getMessage());
         } finally {
-            if(connUpdate != null) connUpdate.close();
+            if(pstmt != null) try { pstmt.close(); } catch(SQLException ignored) {}
+            if(connUpdate != null) try { connUpdate.close(); } catch(SQLException ignored) {}
         }
     }
     %>
@@ -160,7 +158,7 @@
                               request.getParameter("no") != null;
     if(hasSearchParams) {
     %>
-    <form method="post" action="seiseki_register.jsp">
+    <form method="post" action="seiseki_regist.jsp">
         <table>
             <tr>
                 <th>入学年度</th>
@@ -172,8 +170,7 @@
             </tr>
             <%
             try {
-                Class.forName("org.h2.Driver");
-                conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                conn = DBConnection.getConnection();
                 stmt = conn.createStatement();
 
                 StringBuilder query = new StringBuilder("SELECT T.STUDENT_NO, T.SUBJECT_CD, T.SCHOOL_CD, T.NO, T.POINT, T.CLASS_NUM, S.NAME AS SUBJECT_NAME, ST.ENT_YEAR, ST.NAME AS STUDENT_NAME ");
@@ -216,9 +213,9 @@
             } catch(Exception e) {
                 out.println("検索エラー: " + e.getMessage());
             } finally {
-                if(rs != null) rs.close();
-                if(stmt != null) stmt.close();
-                if(conn != null) conn.close();
+                if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
+                if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
+                if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
             }
             %>
         </table>
