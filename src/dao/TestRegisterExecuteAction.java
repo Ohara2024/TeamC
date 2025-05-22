@@ -7,12 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import bean.Test;
-import scoremanager.main.Action;
 
 /**
  * テスト登録の実行処理を行うアクション
  */
-public class TestRegisterExecuteAction implements Action {
+public class TestRegisterExecuteAction implements tool.Action {
     public void execute(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // リクエストからパラメータを取得
