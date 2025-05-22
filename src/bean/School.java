@@ -1,35 +1,32 @@
 package bean;
 
-import java.io.Serializable;
+public class School {
+    private String cd;    // CD
+    private String name;  // NAME
 
-public class School implements Serializable {
+    // デフォルトコンストラクタ
+    public School() {}
 
-	/**
-	 * 学校コード:String
-	 */
-	private String cd;
+    // 全フィールド指定コンストラクタ
+    public School(String cd, String name) {
+        this.cd = cd;
+        this.name = name;
+    }
 
-	/**
-	 * 学校名:String
-	 */
-	private String name;
+    // ゲッターとセッター
+    public String getCd() {
+        return cd;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public String getCd() {
-		return cd;
-	}
+    public void setCd(String cd) {
+        this.cd = cd;
+    }
 
-	public void setCd(String cd) {
-		this.cd = cd;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 }

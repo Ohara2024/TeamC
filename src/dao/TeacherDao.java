@@ -4,91 +4,63 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Logger;
+
+import javax.naming.NamingException;
 
 import bean.Teacher;
 
+/**
+ * 教師情報を管理するDAOクラス
+ */
 public class TeacherDao extends Dao {
-	/**
-	 * getメソッド 教員IDを指定して教員インスタンスを1件取得する
-	 *
-	 * @param id:String
-	 *            教員ID
-	 * @return 教員クラスのインスタンス 存在しない場合はnull
-	 * @throws Exception
-	 */
-	public Teacher get(String id) throws Exception {
-		// 教員インスタンスを初期化
-		Teacher teacher = new Teacher();
-		// コネクションを確立
-		Connection connection = getConnection();
-		// プリペアードステートメント
-		PreparedStatement statement = null;
+    private static final Logger LOGGER = Logger.getLogger(TeacherDao.class.getName());
 
-		try {
-			// プリペアードステートメントにSQL文をセット
-			statement = connection.prepareStatement("select * from teacher where id=?");
-			// プリペアードステートメントに教員IDをバインド
-			statement.setString(1, id);
-			// プリペアードステートメントを実行
-			ResultSet rSet = statement.executeQuery();
+    /**
+     * 教師のログイン認証
+     * @param id 教師ID
+     * @param password パスワード
+     * @return 認証された教師オブジェクト、認証失敗時はnull
+     * @throws SQLException データベース操作エラー
+     * @throws NamingException JNDIルックアップエラー
+     * @throws IllegalArgumentException 入力値が無効な場合
+     */
+    public Teacher authenticate(String id, String password) throws SQLException, NamingException {
+        if (id == null || password == null) {
+            throw new IllegalArgumentException("教師IDとパスワードは必須です。");
+        }
 
-			// 学校Daoを初期化
-			SchoolDao schoolDao = new SchoolDao();
-
-			if (rSet.next()) {
-				// リザルトセットが存在する場合
-				// 教員インスタンスに検索結果をセット
-				teacher.setId(rSet.getString("id"));
-				teacher.setPassword(rSet.getString("password"));
-				teacher.setName(rSet.getString("name"));
-				// 学校フィールドには学校コードで検索した学校インスタンスをセット
-				teacher.setSchool(schoolDao.get(rSet.getString("school_cd")));
-			} else {
-				// リザルトセットが存在しない場合
-				// 教員インスタンスにnullをセット
-				teacher = null;
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			// プリペアードステートメントを閉じる
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-			// コネクションを閉じる
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-		}
-
-		return teacher;
-	}
-
-	/**
-	 * loginメソッド 教員IDとパスワードで認証する
-	 *
-	 * @param id:String
-	 *            教員ID
-	 * @param password:String
-	 *            パスワード
-	 * @return 認証成功:教員クラスのインスタンス, 認証失敗:null
-	 * @throws Exception
-	 */
-	public Teacher login(String id, String password) throws Exception {
-		// 教員クラスのインスタンスを取得
-		Teacher teacher = get(id);
-		// 教員がnullまたはパスワードが一致しない場合
-		if (teacher == null || !teacher.getPassword().equals(password)) {
-			return null;
-		}
-		return teacher;
-	}
+        // TODO: セキュリティ向上のため、パスワードは平文ではなくハッシュ化（例：BCrypt）して保存・比較することを推奨。
+        String sql = "SELECT ID, NAME, SCHOOL_CD FROM TEACHER WHERE ID = ? AND PASSWORD = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.setString(2, password);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Teacher teacher = new Teacher();
+                    String teacherId = rs.getString("ID");
+                    String name = rs.getString("NAME");
+                    String schoolCd = rs.getString("SCHOOL_CD");
+                    if (teacherId != null && name != null && schoolCd != null) {
+                        teacher.setId(teacherId);
+                        teacher.setName(name);
+                        teacher.setSchoolCd(schoolCd);
+                        LOGGER.info("教師ID " + id + " の認証に成功しました。");
+                        return teacher;
+                    } else {
+                        LOGGER.warning("無効な教師データが検出されました: ID, NAME, SCHOOL_CDがnullです。");
+                    }
+                }
+            }
+            LOGGER.info("教師ID " + id + " の認証に失敗しました。");
+        } catch (SQLException e) {
+            LOGGER.severe("データベース操作に失敗しました: " + e.getMessage());
+            throw e;
+        } catch (NamingException e) {
+            LOGGER.severe("JNDIルックアップに失敗しました: " + e.getMessage());
+            throw e;
+        }
+        return null;
+    }
 }
