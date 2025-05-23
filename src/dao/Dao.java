@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class Dao {
 
-    private static final String URL = "jdbc:h2:tcp://localhost/~/seiseki";
+    private static final String URL = "jdbc:h2:tcp://localhost/~/exam";
 
     private static final String USER = "sa"; // デフォルトユーザー名
 

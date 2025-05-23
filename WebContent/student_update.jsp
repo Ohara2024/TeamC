@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="seiseki.StudentListAction.Student, seiseki.StudentUpdateAction.ClassNum, java.util.List" %>
+<%@ page import="exam.StudentListAction.Student, exam.StudentUpdateAction.ClassNum, java.util.List" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>

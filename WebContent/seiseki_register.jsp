@@ -32,7 +32,7 @@
                     ResultSet rs = null;
                     try {
                         Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM STUDENT ORDER BY ENT_YEAR");
                         while(rs.next()) {
@@ -56,7 +56,7 @@
                     <%
                     try {
                         Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                         while(rs.next()) {
@@ -80,7 +80,7 @@
                     <%
                     try {
                         Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT CD, NAME FROM SUBJECT ORDER BY CD");
                         while(rs.next()) {
@@ -118,7 +118,7 @@
         Connection connUpdate = null;
         try {
             Class.forName("org.h2.Driver");
-            connUpdate = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+            connUpdate = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
             String sql = "UPDATE TEST SET POINT = ? WHERE STUDENT_NO = ? AND SUBJECT_CD = ? AND SCHOOL_CD = ? AND NO = ?";
             PreparedStatement pstmt = connUpdate.prepareStatement(sql);
 
@@ -168,7 +168,7 @@
             <%
             try {
                 Class.forName("org.h2.Driver");
-                conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
+                conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                 stmt = conn.createStatement();
 
                 StringBuilder query = new StringBuilder("SELECT T.STUDENT_NO, T.SUBJECT_CD, T.SCHOOL_CD, T.NO, T.POINT, T.CLASS_NUM, S.NAME AS SUBJECT_NAME, ST.ENT_YEAR, ST.NAME AS STUDENT_NAME ");
