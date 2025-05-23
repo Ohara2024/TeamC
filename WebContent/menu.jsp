@@ -110,13 +110,13 @@
     <div class="menu-grid">
         <div class="card student">
             <h3>学生管理</h3>
-            <a href="StudentSearch.action">学生管理</a>
+            <a href="student_list.jsp">学生管理</a>
         </div>
 
         <div class="card score">
             <h3>成績管理</h3>
-            <a href="ScoreRegisterForm.action">成績登録</a>
-            <a href="ScoreReferenceForm.action">成績参照</a>
+            <a href="seiseki_regist.jsp">成績登録</a>
+            <a href="seiseki_regist.jsp">成績参照</a>
         </div>
 
         <div class="card subject">
