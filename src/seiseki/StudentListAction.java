@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/StudentListAction")
 public class StudentListAction extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final String DB_URL = "jdbc:h2:~/exam;AUTO_SERVER=TRUE";
+    private static final String DB_URL = "jdbc:h2:~/exam";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "";
 
@@ -37,12 +37,14 @@ public class StudentListAction extends HttpServlet {
 
         List<Student> students = new ArrayList<>();
         int resultCount = 0;
+        String error = null;
 
         Connection conn = null;
         try {
             // H2ドライバのロード
             Class.forName("org.h2.Driver");
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            conn.setAutoCommit(true); // 自動コミットを明示的に有効化
 
             StringBuilder query = new StringBuilder("SELECT * FROM STUDENT WHERE 1=1");
             if (entYearParam != null && !entYearParam.isEmpty()) {
@@ -98,20 +100,23 @@ public class StudentListAction extends HttpServlet {
             request.setAttribute("isAttend", isAttendParam);
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // デバッグ用ログ
-            request.setAttribute("error", "H2ドライバが見つかりません: " + e.getMessage());
+            error = "H2ドライバが見つかりません: " + e.getMessage();
         } catch (SQLException e) {
             e.printStackTrace(); // デバッグ用ログ
-            request.setAttribute("error", "データベースエラー: " + e.getMessage());
+            error = "データベースエラー: " + e.getMessage();
         } finally {
             if (conn != null) {
                 try {
                     conn.close();
-                } catch (SQLException ignored) {
-                    ignored.printStackTrace(); // デバッグ用ログ
+                } catch (SQLException e) {
+                    e.printStackTrace(); // デバッグ用ログ
                 }
             }
         }
 
+        if (error != null) {
+            request.setAttribute("error", error);
+        }
         request.getRequestDispatcher("student_list.jsp").forward(request, response);
     }
 

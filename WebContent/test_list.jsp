@@ -1,3 +1,4 @@
+```jsp
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*, java.sql.*" %>
 <!DOCTYPE html>
@@ -117,7 +118,8 @@
                 ResultSet rs = null;
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                    conn.setAutoCommit(true); // 自動コミットを明示的に有効化
                     pstmt = conn.prepareStatement("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -143,7 +145,8 @@
                 String selectedClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : "";
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                    conn.setAutoCommit(true); // 自動コミットを明示的に有効化
                     pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -169,7 +172,8 @@
                 String selectedSubjectCd = request.getParameter("subject_cd") != null ? request.getParameter("subject_cd") : "";
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                    conn.setAutoCommit(true); // 自動コミットを明示的に有効化
                     pstmt = conn.prepareStatement("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -223,7 +227,8 @@
     if (searched && !allSubjectConditionsEmpty || (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty())) {
         try {
             Class.forName("org.h2.Driver");
-            conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
+            conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+            conn.setAutoCommit(true); // 自動コミットを明示的に有効化
             StringBuilder query = new StringBuilder(
                 "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME AS STUDENT_NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
                 "FROM TEST T " +
@@ -350,3 +355,4 @@
 <%@ include file="footer.jsp" %>
 </body>
 </html>
+```
