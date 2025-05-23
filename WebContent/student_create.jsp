@@ -1,4 +1,3 @@
-```jsp
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <!DOCTYPE html>
@@ -191,4 +190,3 @@
     <%@ include file="footer.jsp" %>
 </body>
 </html>
-```
