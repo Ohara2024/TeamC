@@ -6,61 +6,49 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-import bean.School;
+import javax.naming.NamingException;
 
+import bean.ClassNum;
+
+/**
+ * クラス番号情報を管理するDAOクラス
+ */
 public class ClassNumDao extends Dao {
-	/**
-	 * filterメソッド 学校を指定してクラス番号の一覧を取得する
-	 *
-	 * @param school:School
-	 * @return クラス番号の一覧:List<String>
-	 * @throws Exception
-	 */
-	public List<String> filter(School school) throws Exception {
-		// リストを初期化
-		List<String> list = new ArrayList<>();
-		// データベースへのコネクションを確立
-		Connection connection = getConnection();
-		// プリペアードステートメント
-		PreparedStatement statement = null;
+    private static final Logger LOGGER = Logger.getLogger(ClassNumDao.class.getName());
 
-		try {
-			// プリペアードステートメントにSQL文をセット
-			statement = connection
-					.prepareStatement("select class_num from class_num where school_cd=? order by class_num");
-			// プリペアードステートメントに学校コードをバインド
-			statement.setString(1, school.getCd());
-			// プリペアードステートメントを実行
-			ResultSet rSet = statement.executeQuery();
-
-			// リザルトセットを全件走査
-			while (rSet.next()) {
-				// リストにクラス番号を追加
-				list.add(rSet.getString("class_num"));
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			// プリペアードステートメントを閉じる
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-			// コネクションを閉じる
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-		}
-
-		return list;
-	}
-
+    /**
+     * クラス番号を全件取得
+     * @return クラス番号リスト
+     * @throws Exception
+     */
+    public List<ClassNum> findAll() throws Exception {
+        List<ClassNum> classNums = new ArrayList<>();
+        String sql = "SELECT SCHOOL_CD, CLASS_NUM FROM CLASS_NUM";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                ClassNum classNum = new ClassNum();
+                String schoolCd = rs.getString("SCHOOL_CD");
+                String classNumValue = rs.getString("CLASS_NUM");
+                if (schoolCd != null && classNumValue != null) {
+                    classNum.setSchoolCd(schoolCd);
+                    classNum.setClassNum(classNumValue);
+                    classNums.add(classNum);
+                } else {
+                    LOGGER.warning("無効なデータが検出されました: SCHOOL_CDまたはCLASS_NUMがnullです。");
+                }
+            }
+            LOGGER.info("クラス番号を" + classNums.size() + "件取得しました。");
+        } catch (SQLException e) {
+            LOGGER.severe("データベース操作に失敗しました: " + e.getMessage());
+            throw e;
+        } catch (NamingException e) {
+            LOGGER.severe("JNDIルックアップに失敗しました: " + e.getMessage());
+            throw e;
+        }
+        return classNums;
+    }
 }

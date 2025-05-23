@@ -1,60 +1,64 @@
 package bean;
 
-import java.io.Serializable;
+public class Teacher {
+    private String id;           // ID
+    private String password;     // PASSWORD
+    private String name;         // NAME
+    private String schoolCd;     // SCHOOL_CD
+    private boolean authenticated = false;  // 認証フラグ（追加）
 
-public class Teacher extends User implements Serializable {
-	/**
-	 * 教員ID:String
-	 */
-	private String id;
+    // デフォルトコンストラクタ
+    public Teacher() {}
 
-	/**
-	 * パスワード:String
-	 */
-	private String password;
+    // 全フィールド指定コンストラクタ（認証フラグは除く）
+    public Teacher(String id, String password, String name, String schoolCd) {
+        this.id = id;
+        this.password = password;
+        this.name = name;
+        this.schoolCd = schoolCd;
+    }
 
-	/**
-	 * 教員名:String
-	 */
-	private String name;
+    // ゲッターとセッター
 
-	/**
-	 * 所属校:School
-	 */
-	private School school;
+    public String getId() {
+        return id;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public String getId() {
-		return id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getSchoolCd() {
+        return schoolCd;
+    }
 
-	public School getSchool() {
-		return school;
-	}
+    public void setSchoolCd(String schoolCd) {
+        this.schoolCd = schoolCd;
+    }
 
-	public void setSchool(School school) {
-		this.school = school;
-	}
+    // 認証フラグのgetterとsetter
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
 }

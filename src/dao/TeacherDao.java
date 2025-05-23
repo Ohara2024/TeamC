@@ -3,92 +3,45 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import bean.Teacher;
 
 public class TeacherDao extends Dao {
-	/**
-	 * getメソッド 教員IDを指定して教員インスタンスを1件取得する
-	 *
-	 * @param id:String
-	 *            教員ID
-	 * @return 教員クラスのインスタンス 存在しない場合はnull
-	 * @throws Exception
-	 */
-	public Teacher get(String id) throws Exception {
-		// 教員インスタンスを初期化
-		Teacher teacher = new Teacher();
-		// コネクションを確立
-		Connection connection = getConnection();
-		// プリペアードステートメント
-		PreparedStatement statement = null;
 
-		try {
-			// プリペアードステートメントにSQL文をセット
-			statement = connection.prepareStatement("select * from teacher where id=?");
-			// プリペアードステートメントに教員IDをバインド
-			statement.setString(1, id);
-			// プリペアードステートメントを実行
-			ResultSet rSet = statement.executeQuery();
+    public Teacher login(String id, String password) {
+        Teacher teacher = null;
 
-			// 学校Daoを初期化
-			SchoolDao schoolDao = new SchoolDao();
+        try {
+            Connection conn = getConnection();
 
-			if (rSet.next()) {
-				// リザルトセットが存在する場合
-				// 教員インスタンスに検索結果をセット
-				teacher.setId(rSet.getString("id"));
-				teacher.setPassword(rSet.getString("password"));
-				teacher.setName(rSet.getString("name"));
-				// 学校フィールドには学校コードで検索した学校インスタンスをセット
-				teacher.setSchool(schoolDao.get(rSet.getString("school_cd")));
-			} else {
-				// リザルトセットが存在しない場合
-				// 教員インスタンスにnullをセット
-				teacher = null;
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			// プリペアードステートメントを閉じる
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-			// コネクションを閉じる
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-		}
+            String sql = "SELECT * FROM teacher WHERE id = ? AND password = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
 
-		return teacher;
-	}
+            ps.setString(1, id);
+            ps.setString(2, password);
 
-	/**
-	 * loginメソッド 教員IDとパスワードで認証する
-	 *
-	 * @param id:String
-	 *            教員ID
-	 * @param password:String
-	 *            パスワード
-	 * @return 認証成功:教員クラスのインスタンス, 認証失敗:null
-	 * @throws Exception
-	 */
-	public Teacher login(String id, String password) throws Exception {
-		// 教員クラスのインスタンスを取得
-		Teacher teacher = get(id);
-		// 教員がnullまたはパスワードが一致しない場合
-		if (teacher == null || !teacher.getPassword().equals(password)) {
-			return null;
-		}
-		return teacher;
-	}
+            System.out.println("🔍 SQL実行: id=" + id + ", password=" + password);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("✅ ログイン成功");
+
+                teacher = new Teacher();
+                teacher.setId(rs.getString("id"));
+                teacher.setPassword(rs.getString("password"));
+                teacher.setName(rs.getString("name"));
+                teacher.setSchoolCd(rs.getString("school_cd")); // ← ここも忘れずに！
+            } else {
+                System.out.println("❌ ログイン失敗: 該当データなし");
+            }
+
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return teacher;
+    }
 }

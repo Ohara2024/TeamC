@@ -1,61 +1,44 @@
 package bean;
 
-import java.io.Serializable;
+import java.util.List;
 
-public class TestListStudent implements Serializable {
-	/**
-	 * 科目名:String
-	 */
-	private String subjectName;
+public class TestListStudent {
+    private String studentNo;  // 学生番号
+    private String name;       // 学生名
+    private List<Test> tests;  // 関連するテストリスト
 
-	/**
-	 * 科目コード:String
-	 */
-	private String subjectCd;
+    // デフォルトコンストラクタ
+    public TestListStudent() {}
 
-	/**
-	 * 回数:int
-	 */
-	private int num;
+    // 全フィールド指定コンストラクタ
+    public TestListStudent(String studentNo, String name, List<Test> tests) {
+        this.studentNo = studentNo;
+        this.name = name;
+        this.tests = tests;
+    }
 
-	/**
-	 * 得点:int
-	 */
-	private int point;
+    // ゲッターとセッター
+    public String getStudentNo() {
+        return studentNo;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public String getSubjectName() {
-		return subjectName;
-	}
+    public void setStudentNo(String studentNo) {
+        this.studentNo = studentNo;
+    }
 
-	public void setSubjectName(String subjectName) {
-		this.subjectName = subjectName;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getSubjectCd() {
-		return subjectCd;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setSubjectCd(String subjectCd) {
-		this.subjectCd = subjectCd;
-	}
+    public List<Test> getTests() {
+        return tests;
+    }
 
-	public int getNum() {
-		return num;
-	}
-
-	public void setNum(int num) {
-		this.num = num;
-	}
-
-	public int getPoint() {
-		return point;
-	}
-
-	public void setPoint(int point) {
-		this.point = point;
-	}
-
+    public void setTests(List<Test> tests) {
+        this.tests = tests;
+    }
 }

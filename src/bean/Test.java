@@ -1,86 +1,72 @@
 package bean;
 
-import java.io.Serializable;
+public class Test {
+    private String studentNo;  // STUDENT_NO
+    private String subjectCd;  // SUBJECT_CD
+    private String schoolCd;   // SCHOOL_CD
+    private int no;            // NO
+    private int point;         // POINT
+    private String classNum;   // CLASS_NUM
 
-public class Test implements Serializable {
-	/**
-	 * 学生:Student
-	 */
-	private Student student;
+    // デフォルトコンストラクタ
+    public Test() {}
 
-	/**
-	 * クラス番号:String
-	 */
-	private String classNum;
+    // 全フィールド指定コンストラクタ
+    public Test(String studentNo, String subjectCd, String schoolCd, int no, int point, String classNum) {
+        this.studentNo = studentNo;
+        this.subjectCd = subjectCd;
+        this.schoolCd = schoolCd;
+        this.no = no;
+        this.point = point;
+        this.classNum = classNum;
+    }
 
-	/**
-	 * 科目:Subject
-	 */
-	private Subject subject;
+    // ゲッターとセッター
+    public String getStudentNo() {
+        return studentNo;
+    }
 
-	/**
-	 * 学校:School
-	 */
-	private School school;
+    public void setStudentNo(String studentNo) {
+        this.studentNo = studentNo;
+    }
 
-	/**
-	 * 回数:int
-	 */
-	private int no;
+    public String getSubjectCd() {
+        return subjectCd;
+    }
 
-	/**
-	 * 得点:int
-	 */
-	private int point;
+    public void setSubjectCd(String subjectCd) {
+        this.subjectCd = subjectCd;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public Student getStudent() {
-		return student;
-	}
+    public String getSchoolCd() {
+        return schoolCd;
+    }
 
-	public void setStudent(Student student) {
-		this.student = student;
-	}
+    public void setSchoolCd(String schoolCd) {
+        this.schoolCd = schoolCd;
+    }
 
-	public String getClassNum() {
-		return classNum;
-	}
+    public int getNo() {
+        return no;
+    }
 
-	public void setClassNum(String classNum) {
-		this.classNum = classNum;
-	}
+    public void setNo(int no) {
+        this.no = no;
+    }
 
-	public Subject getSubject() {
-		return subject;
-	}
+    public int getPoint() {
+        return point;
+    }
 
-	public void setSubject(Subject subject) {
-		this.subject = subject;
-	}
+    public void setPoint(int point) {
+        this.point = point;
+    }
 
-	public School getSchool() {
-		return school;
-	}
+    public String getClassNum() {
+        return classNum;
+    }
 
-	public void setSchool(School school) {
-		this.school = school;
-	}
-
-	public int getNo() {
-		return no;
-	}
-
-	public void setNo(int no) {
-		this.no = no;
-	}
-
-	public int getPoint() {
-		return point;
-	}
-
-	public void setPoint(int point) {
-		this.point = point;
-	}
+    public void setClassNum(String classNum) {
+        this.classNum = classNum;
+    }
 }

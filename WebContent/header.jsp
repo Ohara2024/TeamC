@@ -1,11 +1,21 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%
+
+    String name = (session != null) ? (String) session.getAttribute("name") : null;
+%>
+
 <div class="header">
     <h1>　得点管理システム</h1>
     <div class="header-actions">
-        <a href="#" class="btn">テスト</a>
-        <a href="#" class="btn">ログアウト</a>
+        <% if (name != null) { %>
+            <span><%= name %>様</span>
+        <% } else { %>
+            <span>ゲスト</span>
+        <% } %>
+         <a href="logout.jsp">ログアウト</a>
     </div>
 </div>
+
 <style>
     .header {
         background-color: #e6f0fa;
@@ -23,15 +33,16 @@
         box-sizing: border-box;
     }
     .header h1 {
-    	background-color: #e6f0fa;
+        background-color: #e6f0fa;
         color: #000000;
         margin: 0;
         font-size: 35px;
     }
     .header-actions {
         display: flex;
-        gap: 10px;
+        gap: 3px;
     }
+
     .btn {
         background-color: #007bff;
         color: white;

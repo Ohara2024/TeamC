@@ -1,108 +1,72 @@
 package bean;
 
-import java.io.Serializable;
-import java.time.LocalDate;
+public class Student {
+    private String no;        // NO
+    private String name;      // NAME
+    private int entYear;      // ENT_YEAR
+    private String classNum;  // CLASS_NUM
+    private boolean attend;   // IS_ATTEND
+    private String schoolCd;  // SCHOOL_CD
 
-public class Student implements Serializable {
-	/**
-	 * 学生番号:String
-	 */
-	private String no;
+    // デフォルトコンストラクタ
+    public Student() {}
 
-	/**
-	 * 氏名:String
-	 */
-	private String name;
+    // 全フィールド指定コンストラクタ
+    public Student(String no, String name, int entYear, String classNum, boolean attend, String schoolCd) {
+        this.no = no;
+        this.name = name;
+        this.entYear = entYear;
+        this.classNum = classNum;
+        this.attend = attend;
+        this.schoolCd = schoolCd;
+    }
 
-	/**
-	 * 入学年度:int
-	 */
-	private int entYear;
+    // ゲッターとセッター
+    public String getNo() {
+        return no;
+    }
 
-	/**
-	 * クラス番号:String
-	 */
-	private String classNum;
+    public void setNo(String no) {
+        this.no = no;
+    }
 
-	/**
-	 * 在学中フラグ:boolean true:在学中
-	 */
-	private boolean isAttend;
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * 所属校:School
-	 */
-	private School school;
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public String getNo() {
-		return no;
-	}
+    public int getEntYear() {
+        return entYear;
+    }
 
-	public void setNo(String no) {
-		this.no = no;
-	}
+    public void setEntYear(int entYear) {
+        this.entYear = entYear;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getClassNum() {
+        return classNum;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setClassNum(String classNum) {
+        this.classNum = classNum;
+    }
 
-	public int getEntYear() {
-		return entYear;
-	}
+    public boolean isAttend() {
+        return attend;
+    }
 
-	public void setEntYear(int entYear) {
-		this.entYear = entYear;
-	}
+    public void setAttend(boolean attend) {
+        this.attend = attend;
+    }
 
-	public String getClassNum() {
-		return classNum;
-	}
+    public String getSchoolCd() {
+        return schoolCd;
+    }
 
-	public void setClassNum(String classNum) {
-		this.classNum = classNum;
-	}
-
-	public boolean isAttend() {
-		return isAttend;
-	}
-
-	public void setAttend(boolean isAttend) {
-		this.isAttend = isAttend;
-	}
-
-	public School getSchool() {
-		return school;
-	}
-
-	public void setSchool(School school) {
-		this.school = school;
-	}
-
-	/**
-	 * getSchoolYearメソッド 現在の年度と入学年度から現在の学年を求める
-	 *
-	 * @return 現在の学年:int
-	 */
-	public int getSchoolYear() {
-//		LocalDateインスタンスを取得
-		LocalDate todaysDate = LocalDate.now();
-//		現在の月と年を取得
-		int month = todaysDate.getMonthValue();
-		int year = todaysDate.getYear();
-//		現在の月が１月から３月までの場合
-		if (1 <= month && month <= 3) {
-//			現在の年を1減らす
-			year--;
-		}
-//		現在の年と入学年度から算出した現在の学年を返却
-		return year - entYear + 1;
-	}
-
+    public void setSchoolCd(String schoolCd) {
+        this.schoolCd = schoolCd;
+    }
 }
