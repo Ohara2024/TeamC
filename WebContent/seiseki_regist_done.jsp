@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>成績管理 - 完了</title>
+<title>得点管理システム</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; background: #fff; }
         .banner { background-color: #D4E8D4; padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 18px; margin-bottom: 20px; }

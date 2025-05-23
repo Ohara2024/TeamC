@@ -5,7 +5,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>メニュー</title>
+    <title>得点管理システム</title>
     <style>
         body {
             font-family: "Meiryo", sans-serif;

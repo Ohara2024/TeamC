@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>成績参照</title>
+    <title>得点管理システム</title>
     <style>
         body {
             font-family: Arial, sans-serif;

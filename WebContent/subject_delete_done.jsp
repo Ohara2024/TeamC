@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>科目削除完了</title>
+    <title>得点管理システム</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
         .content {
