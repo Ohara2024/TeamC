@@ -17,7 +17,7 @@
             text-align: center;
         }
         main {
-            margin-left: 200px; /* サイドバーの幅に合わせる */
+            margin-left: 200px;
             padding: 20px;
         }
         .error {
@@ -51,12 +51,12 @@
     <%@ include file="sidebar.jsp" %>
     <main>
         <h1>成績参照</h1>
-        
+
         <!-- エラーメッセージ -->
         <c:if test="${not empty errorMsg}">
             <p class="error"><c:out value="${errorMsg}" /></p>
         </c:if>
-        
+
         <!-- 検索フォーム -->
         <form action="testListStudentExecute" method="post">
             <label>入学年度:</label>
@@ -66,7 +66,7 @@
                     <option value="${year}"><c:out value="${year}" /></option>
                 </c:forEach>
             </select>
-            
+
             <label>クラス:</label>
             <select name="class_num">
                 <option value="">選択してください</option>
@@ -76,7 +76,7 @@
                     </option>
                 </c:forEach>
             </select>
-            
+
             <label>科目:</label>
             <select name="subject_cd">
                 <option value="">選択してください</option>
@@ -86,13 +86,13 @@
                     </option>
                 </c:forEach>
             </select>
-            
+
             <label>学生番号:</label>
             <input type="text" name="student_no" value="">
-            
+
             <input type="submit" value="検索">
         </form>
-        
+
         <!-- 検索結果 -->
         <c:if test="${not empty results}">
             <table>
@@ -116,7 +116,7 @@
                             <td><c:out value="${result.studentName}" /></td>
                             <td><c:out value="${result.subjectName}" /></td>
                             <td><c:out value="${result.test1Point != null ? result.test1Point : '-'}" /></td>
-                            <td><c:out value="${result.test2Point != null ? result.test1Point : '-'}" /></td>
+                            <td><c:out value="${result.test2Point != null ? result.test2Point : '-'}" /></td>
                         </tr>
                     </c:forEach>
                 </tbody>

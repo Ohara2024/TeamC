@@ -12,7 +12,7 @@
             padding: 20px;
         }
         .main-content {
-            margin-left: 220px; /* サイドバーの幅(200px)＋余白(10px) */
+            margin-left: 220px;
             padding: 10px;
         }
         h2 {
@@ -20,7 +20,7 @@
             color: #333;
         }
         h3 {
-            margin: 15px 0; /* 枠との間隔を調整 */
+            margin: 15px 0;
             color: #333;
             font-size: 1.2em;
         }
@@ -85,13 +85,12 @@
             background-color: #f8d7da;
             border-radius: 4px;
         }
-        /* レスポンシブ対応：画面幅が狭い場合、サイドバーを非表示にし、コンテンツを全幅に */
         @media (max-width: 768px) {
             .main-content {
-                margin-left: 0; /* サイドバーがないのでマージンをリセット */
+                margin-left: 0;
             }
             .sidebar {
-                display: none; /* サイドバーを非表示 */
+                display: none;
             }
         }
     </style>
@@ -111,21 +110,27 @@
             <label>入学年度</label>
             <select name="ent_year">
                 <option value="">--------</option>
-                <% 
+                <%
                 String selectedEntYear = request.getParameter("ent_year") != null ? request.getParameter("ent_year") : "";
+                Connection conn = null;
+                Statement stmt = null;
+                ResultSet rs = null;
                 try {
                     Class.forName("org.h2.Driver");
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
-                    Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
+                    conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+                    stmt = conn.createStatement();
+                    rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
                     while (rs.next()) {
                         int year = rs.getInt("ENT_YEAR");
                         String selected = String.valueOf(year).equals(selectedEntYear) ? "selected" : "";
                         out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
                     }
-                    rs.close(); stmt.close(); conn.close();
                 } catch(Exception e) {
-                    out.println("エラー: " + e.getMessage());
+                    out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+                } finally {
+                    if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                    if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+                    if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                 }
                 %>
             </select>
@@ -133,21 +138,24 @@
             <label>クラス</label>
             <select name="class_num">
                 <option value="">--------</option>
-                <% 
+                <%
                 String selectedClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : "";
                 try {
                     Class.forName("org.h2.Driver");
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
-                    Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                    conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+                    stmt = conn.createStatement();
+                    rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                     while (rs.next()) {
                         String classNum = rs.getString("CLASS_NUM");
                         String selected = classNum.equals(selectedClassNum) ? "selected" : "";
                         out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
                     }
-                    rs.close(); stmt.close(); conn.close();
                 } catch(Exception e) {
-                    out.println("エラー: " + e.getMessage());
+                    out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+                } finally {
+                    if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                    if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+                    if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                 }
                 %>
             </select>
@@ -155,33 +163,36 @@
             <label>科目</label>
             <select name="subject_cd">
                 <option value="">--------</option>
-                <% 
+                <%
                 String selectedSubjectCd = request.getParameter("subject_cd") != null ? request.getParameter("subject_cd") : "";
                 try {
                     Class.forName("org.h2.Driver");
-                    Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
-                    Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT SCHOOL_CD, CD, NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
+                    conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+                    stmt = conn.createStatement();
+                    rs = stmt.executeQuery("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
                     while (rs.next()) {
                         String schoolCd = rs.getString("SCHOOL_CD");
                         String cd = rs.getString("CD");
-                        String name = rs.getString("NAME");
+                        String subjectName = rs.getString("SUBJECT_NAME");
                         String value = schoolCd + "_" + cd;
                         String selected = value.equals(selectedSubjectCd) ? "selected" : "";
-                        out.println("<option value='" + value + "' " + selected + ">" + name + "</option>");
+                        out.println("<option value='" + value + "' " + selected + ">" + subjectName + "</option>");
                     }
-                    rs.close(); stmt.close(); conn.close();
                 } catch(Exception e) {
-                    out.println("エラー: " + e.getMessage());
+                    out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+                } finally {
+                    if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                    if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+                    if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                 }
                 %>
             </select>
 
             <input type="submit" value="検索">
             <%
-            boolean searched = (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) || 
-                              (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) || 
-                              (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) || 
+            boolean searched = (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) ||
+                              (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) ||
+                              (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) ||
                               (request.getParameter("subject_cd") != null && !request.getParameter("subject_cd").isEmpty());
 
             boolean allSubjectConditionsEmpty = (request.getParameter("ent_year") == null || request.getParameter("ent_year").isEmpty()) &&
@@ -209,9 +220,9 @@
     if (searched && !allSubjectConditionsEmpty || (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty())) {
         try {
             Class.forName("org.h2.Driver");
-            Connection conn = DriverManager.getConnection("jdbc:h2:~/seiseki", "sa", "");
-            Statement stmt = conn.createStatement();
-            String query = "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
+            conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+            stmt = conn.createStatement();
+            String query = "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME AS STUDENT_NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
                            "FROM TEST T " +
                            "JOIN STUDENT S ON T.STUDENT_NO = S.NO " +
                            "JOIN SUBJECT SU ON T.SCHOOL_CD = SU.SCHOOL_CD AND T.SUBJECT_CD = SU.CD " +
@@ -229,7 +240,7 @@
                 String[] subjectParts = request.getParameter("subject_cd").split("_");
                 query += " AND T.SCHOOL_CD = '" + subjectParts[0] + "' AND T.SUBJECT_CD = '" + subjectParts[1] + "'";
             }
-            ResultSet rs = stmt.executeQuery(query);
+            rs = stmt.executeQuery(query);
 
             java.util.Map<String, java.util.Map<String, java.util.Map<String, Object>>> groupedData = new java.util.HashMap<>();
             while (rs.next()) {
@@ -237,13 +248,13 @@
                 String subjectName = rs.getString("SUBJECT_NAME");
                 int entYear = rs.getInt("ENT_YEAR");
                 String classNum = rs.getString("CLASS_NUM");
-                String name = rs.getString("NAME");
+                String studentName = rs.getString("STUDENT_NAME");
                 int testNo = rs.getInt("NO");
                 Integer point = rs.getObject("POINT") != null ? rs.getInt("POINT") : null;
 
                 groupedData.putIfAbsent(studentNo, new java.util.HashMap<String, java.util.Map<String, Object>>());
                 groupedData.get(studentNo).putIfAbsent(subjectName, new java.util.HashMap<String, Object>());
-                
+
                 java.util.Map<String, Object> subjectData = groupedData.get(studentNo).get(subjectName);
                 if (!subjectData.containsKey("ENT_YEAR")) {
                     subjectData.put("ENT_YEAR", entYear);
@@ -251,8 +262,8 @@
                 if (!subjectData.containsKey("CLASS_NUM")) {
                     subjectData.put("CLASS_NUM", classNum != null ? classNum : "未設定");
                 }
-                if (!subjectData.containsKey("NAME")) {
-                    subjectData.put("NAME", name != null ? name : "不明");
+                if (!subjectData.containsKey("STUDENT_NAME")) {
+                    subjectData.put("STUDENT_NAME", studentName != null ? studentName : "不明");
                 }
                 subjectData.put("TEST_" + testNo, point);
             }
@@ -271,7 +282,7 @@
                         <th>1回目</th>
                         <th>2回目</th>
                     </tr>
-                    <% 
+                    <%
                     for (String studentNo : groupedData.keySet()) {
                         for (String subjectName : groupedData.get(studentNo).keySet()) {
                             java.util.Map<String, Object> data = groupedData.get(studentNo).get(subjectName);
@@ -279,7 +290,7 @@
                             out.println("<td>" + (data.get("ENT_YEAR") != null ? data.get("ENT_YEAR") : "未設定") + "</td>");
                             out.println("<td>" + (data.get("CLASS_NUM") != null ? data.get("CLASS_NUM") : "未設定") + "</td>");
                             out.println("<td>" + studentNo + "</td>");
-                            out.println("<td>" + (data.get("NAME") != null ? data.get("NAME") : "不明") + "</td>");
+                            out.println("<td>" + (data.get("STUDENT_NAME") != null ? data.get("STUDENT_NAME") : "不明") + "</td>");
                             out.println("<td>" + subjectName + "</td>");
                             out.println("<td>" + (data.get("TEST_1") != null ? data.get("TEST_1") : "") + "</td>");
                             out.println("<td>" + (data.get("TEST_2") != null ? data.get("TEST_2") : "") + "</td>");
@@ -290,9 +301,12 @@
                 </table>
                 <%
             }
-            rs.close(); stmt.close(); conn.close();
         } catch(Exception e) {
             out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+            if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+            if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
     } else if (!searched) {
         out.println("<p class='message'>検索条件を指定してください。</p>");
