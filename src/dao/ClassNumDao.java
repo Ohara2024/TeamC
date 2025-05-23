@@ -3,64 +3,44 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
+import bean.ClassNum;
 import bean.School;
 
 public class ClassNumDao extends Dao {
-	/**
-	 * filterメソッド 学校を指定してクラス番号の一覧を取得する
-	 *
-	 * @param school:School
-	 * @return クラス番号の一覧:List<String>
-	 * @throws Exception
-	 */
-	public List<String> filter(School school) throws Exception {
-		// リストを初期化
-		List<String> list = new ArrayList<>();
-		// データベースへのコネクションを確立
-		Connection connection = getConnection();
-		// プリペアードステートメント
-		PreparedStatement statement = null;
 
-		try {
-			// プリペアードステートメントにSQL文をセット
-			statement = connection
-					.prepareStatement("select class_num from class_num where school_cd=? order by class_num");
-			// プリペアードステートメントに学校コードをバインド
-			statement.setString(1, school.getCd());
-			// プリペアードステートメントを実行
-			ResultSet rSet = statement.executeQuery();
+    public ClassNum getClassByCode(String classCode) throws Exception {
+        ClassNum classNum = null;
+        Connection connection = getConnection();
+        PreparedStatement statement = null;
+        ResultSet rSet = null;
 
-			// リザルトセットを全件走査
-			while (rSet.next()) {
-				// リストにクラス番号を追加
-				list.add(rSet.getString("class_num"));
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			// プリペアードステートメントを閉じる
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-			// コネクションを閉じる
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException sqle) {
-					throw sqle;
-				}
-			}
-		}
+        try {
+            statement = connection.prepareStatement(
+                "SELECT class_num, school_cd FROM classnum WHERE class_num = ?"
+            );
+            statement.setString(1, classCode);
+            rSet = statement.executeQuery();
 
-		return list;
-	}
+            if (rSet.next()) {
+                classNum = new ClassNum();
+                classNum.setNum(rSet.getString("class_num"));
 
+                School school = new School();
+                school.setCd(rSet.getString("school_cd"));
+                classNum.setSchool(school);
+            }
+        } finally {
+            if (rSet != null) rSet.close();
+            if (statement != null) statement.close();
+            if (connection != null) connection.close();
+        }
+        return classNum;
+    }
+
+    public String getSchoolCodeByClassCode(String classCode) throws Exception {
+        // 既存のschoolCd取得メソッドがあれば使う
+        ClassNum classNum = getClassByCode(classCode);
+        return (classNum != null && classNum.getSchool() != null) ? classNum.getSchool().getCd() : null;
+    }
 }
