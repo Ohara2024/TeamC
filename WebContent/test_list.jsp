@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*, java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -113,23 +113,23 @@
                 <%
                 String selectedEntYear = request.getParameter("ent_year") != null ? request.getParameter("ent_year") : "";
                 Connection conn = null;
-                Statement stmt = null;
+                PreparedStatement pstmt = null;
                 ResultSet rs = null;
                 try {
                     Class.forName("org.h2.Driver");
                     conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
-                    stmt = conn.createStatement();
-                    rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
+                    pstmt = conn.prepareStatement("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
+                    rs = pstmt.executeQuery();
                     while (rs.next()) {
                         int year = rs.getInt("ENT_YEAR");
                         String selected = String.valueOf(year).equals(selectedEntYear) ? "selected" : "";
                         out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
                     }
                 } catch(Exception e) {
-                    out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+                    out.println("<p class='message'>入学年度取得エラー: " + e.getMessage() + "</p>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-                    if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+                    if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
                     if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                 }
                 %>
@@ -143,18 +143,18 @@
                 try {
                     Class.forName("org.h2.Driver");
                     conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
-                    stmt = conn.createStatement();
-                    rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                    pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                    rs = pstmt.executeQuery();
                     while (rs.next()) {
                         String classNum = rs.getString("CLASS_NUM");
                         String selected = classNum.equals(selectedClassNum) ? "selected" : "";
                         out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
                     }
                 } catch(Exception e) {
-                    out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+                    out.println("<p class='message'>クラス取得エラー: " + e.getMessage() + "</p>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-                    if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+                    if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
                     if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                 }
                 %>
@@ -168,8 +168,8 @@
                 try {
                     Class.forName("org.h2.Driver");
                     conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
-                    stmt = conn.createStatement();
-                    rs = stmt.executeQuery("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
+                    pstmt = conn.prepareStatement("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
+                    rs = pstmt.executeQuery();
                     while (rs.next()) {
                         String schoolCd = rs.getString("SCHOOL_CD");
                         String cd = rs.getString("CD");
@@ -179,10 +179,10 @@
                         out.println("<option value='" + value + "' " + selected + ">" + subjectName + "</option>");
                     }
                 } catch(Exception e) {
-                    out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+                    out.println("<p class='message'>科目取得エラー: " + e.getMessage() + "</p>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-                    if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+                    if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
                     if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                 }
                 %>
@@ -221,28 +221,43 @@
         try {
             Class.forName("org.h2.Driver");
             conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
-            stmt = conn.createStatement();
-            String query = "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME AS STUDENT_NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
-                           "FROM TEST T " +
-                           "JOIN STUDENT S ON T.STUDENT_NO = S.NO " +
-                           "JOIN SUBJECT SU ON T.SCHOOL_CD = SU.SCHOOL_CD AND T.SUBJECT_CD = SU.CD " +
-                           "WHERE 1=1";
+
+            StringBuilder query = new StringBuilder(
+                "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME AS STUDENT_NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
+                "FROM TEST T " +
+                "JOIN STUDENT S ON T.STUDENT_NO = S.NO " +
+                "JOIN SUBJECT SU ON T.SCHOOL_CD = SU.SCHOOL_CD AND T.SUBJECT_CD = SU.CD " +
+                "WHERE 1=1"
+            );
+            List<String> params = new ArrayList<>();
+
             if (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) {
-                query += " AND S.ENT_YEAR = " + request.getParameter("ent_year");
+                query.append(" AND S.ENT_YEAR = ?");
+                params.add(request.getParameter("ent_year"));
             }
             if (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) {
-                query += " AND T.CLASS_NUM = '" + request.getParameter("class_num") + "'";
+                query.append(" AND T.CLASS_NUM = ?");
+                params.add(request.getParameter("class_num"));
             }
             if (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) {
-                query += " AND T.STUDENT_NO = '" + request.getParameter("student_no") + "'";
+                query.append(" AND T.STUDENT_NO = ?");
+                params.add(request.getParameter("student_no"));
             }
             if (request.getParameter("subject_cd") != null && !request.getParameter("subject_cd").isEmpty()) {
                 String[] subjectParts = request.getParameter("subject_cd").split("_");
-                query += " AND T.SCHOOL_CD = '" + subjectParts[0] + "' AND T.SUBJECT_CD = '" + subjectParts[1] + "'";
+                query.append(" AND T.SCHOOL_CD = ? AND T.SUBJECT_CD = ?");
+                params.add(subjectParts[0]);
+                params.add(subjectParts[1]);
             }
-            rs = stmt.executeQuery(query);
 
-            java.util.Map<String, java.util.Map<String, java.util.Map<String, Object>>> groupedData = new java.util.HashMap<>();
+            pstmt = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+
+            rs = pstmt.executeQuery();
+
+            Map<String, Map<String, Map<String, Object>>> groupedData = new HashMap<>();
             while (rs.next()) {
                 String studentNo = rs.getString("STUDENT_NO");
                 String subjectName = rs.getString("SUBJECT_NAME");
@@ -252,24 +267,18 @@
                 int testNo = rs.getInt("NO");
                 Integer point = rs.getObject("POINT") != null ? rs.getInt("POINT") : null;
 
-                groupedData.putIfAbsent(studentNo, new java.util.HashMap<String, java.util.Map<String, Object>>());
-                groupedData.get(studentNo).putIfAbsent(subjectName, new java.util.HashMap<String, Object>());
+                groupedData.putIfAbsent(studentNo, new HashMap<>());
+                groupedData.get(studentNo).putIfAbsent(subjectName, new HashMap<>());
 
-                java.util.Map<String, Object> subjectData = groupedData.get(studentNo).get(subjectName);
-                if (!subjectData.containsKey("ENT_YEAR")) {
-                    subjectData.put("ENT_YEAR", entYear);
-                }
-                if (!subjectData.containsKey("CLASS_NUM")) {
-                    subjectData.put("CLASS_NUM", classNum != null ? classNum : "未設定");
-                }
-                if (!subjectData.containsKey("STUDENT_NAME")) {
-                    subjectData.put("STUDENT_NAME", studentName != null ? studentName : "不明");
-                }
+                Map<String, Object> subjectData = groupedData.get(studentNo).get(subjectName);
+                subjectData.putIfAbsent("ENT_YEAR", entYear);
+                subjectData.putIfAbsent("CLASS_NUM", classNum != null ? classNum : "未設定");
+                subjectData.putIfAbsent("STUDENT_NAME", studentName != null ? studentName : "不明");
                 subjectData.put("TEST_" + testNo, point);
             }
 
             if (groupedData.isEmpty()) {
-                out.println("<p class='message'>学生情報が存在しませんでした</p>");
+                out.println("<p class='message'>学生情報が存在しませんでした。データベースに適切なデータがあるか確認してください。</p>");
             } else {
                 %>
                 <table>
@@ -285,15 +294,15 @@
                     <%
                     for (String studentNo : groupedData.keySet()) {
                         for (String subjectName : groupedData.get(studentNo).keySet()) {
-                            java.util.Map<String, Object> data = groupedData.get(studentNo).get(subjectName);
+                            Map<String, Object> data = groupedData.get(studentNo).get(subjectName);
                             out.println("<tr>");
                             out.println("<td>" + (data.get("ENT_YEAR") != null ? data.get("ENT_YEAR") : "未設定") + "</td>");
                             out.println("<td>" + (data.get("CLASS_NUM") != null ? data.get("CLASS_NUM") : "未設定") + "</td>");
                             out.println("<td>" + studentNo + "</td>");
                             out.println("<td>" + (data.get("STUDENT_NAME") != null ? data.get("STUDENT_NAME") : "不明") + "</td>");
                             out.println("<td>" + subjectName + "</td>");
-                            out.println("<td>" + (data.get("TEST_1") != null ? data.get("TEST_1") : "") + "</td>");
-                            out.println("<td>" + (data.get("TEST_2") != null ? data.get("TEST_2") : "") + "</td>");
+                            out.println("<td>" + (data.get("TEST_1") != null ? data.get("TEST_1") : "-") + "</td>");
+                            out.println("<td>" + (data.get("TEST_2") != null ? data.get("TEST_2") : "-") + "</td>");
                             out.println("</tr>");
                         }
                     }
@@ -302,10 +311,10 @@
                 <%
             }
         } catch(Exception e) {
-            out.println("<p class='message'>エラー: " + e.getMessage() + "</p>");
+            out.println("<p class='message'>検索エラー: " + e.getMessage() + "</p>");
         } finally {
             if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-            if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
             if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
     } else if (!searched) {
