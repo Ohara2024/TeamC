@@ -13,10 +13,10 @@
         .form-group { margin-bottom: 15px; }
         label { display: inline-block; width: 120px; font-weight: bold; }
         input[type="text"], select {
-            width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px;
+            width: 1000px; max-width: 1000px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; display: block; margin-top: 5px;
         }
         input[type="submit"] {
-            background-color: #007bff; color: white; padding: 8px 20px; border: none;
+            background-color: #4C4C4C; color: white; padding: 8px 20px; border: none;
             border-radius: 3px; cursor: pointer; font-size: 14px;
         }
         input[type="submit"]:hover { background-color: #0056b3; }
