@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/StudentListAction")
 public class StudentListAction extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final String DB_URL = "jdbc:h2:~/exam";
+    private static final String DB_URL = "jdbc:h2:~/exam;AUTO_SERVER=TRUE";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "";
 
@@ -80,47 +80,38 @@ public class StudentListAction extends HttpServlet {
                     resultCount++;
                 }
             }
-        } catch (ClassNotFoundException e) {
-            request.setAttribute("error", "H2ドライバが見つかりません: " + e.getMessage());
-        } catch (SQLException e) {
-            request.setAttribute("error", "データベースエラー: " + e.getMessage());
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ignored) {}
-            }
-        }
 
-        // クラス一覧を取得
-        List<String> classNumbers = new ArrayList<>();
-        try {
-            Class.forName("org.h2.Driver");
-            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            // クラス一覧を取得
+            List<String> classNumbers = new ArrayList<>();
             try (PreparedStatement pstmt = conn.prepareStatement("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                  ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     classNumbers.add(rs.getString("CLASS_NUM"));
                 }
             }
+
+            request.setAttribute("students", students);
+            request.setAttribute("resultCount", resultCount);
+            request.setAttribute("classNumbers", classNumbers);
+            request.setAttribute("entYear", entYearParam);
+            request.setAttribute("classNum", classNumParam);
+            request.setAttribute("isAttend", isAttendParam);
         } catch (ClassNotFoundException e) {
+            e.printStackTrace(); // デバッグ用ログ
             request.setAttribute("error", "H2ドライバが見つかりません: " + e.getMessage());
         } catch (SQLException e) {
+            e.printStackTrace(); // デバッグ用ログ
             request.setAttribute("error", "データベースエラー: " + e.getMessage());
         } finally {
             if (conn != null) {
                 try {
                     conn.close();
-                } catch (SQLException ignored) {}
+                } catch (SQLException ignored) {
+                    ignored.printStackTrace(); // デバッグ用ログ
+                }
             }
         }
 
-        request.setAttribute("students", students);
-        request.setAttribute("resultCount", resultCount);
-        request.setAttribute("classNumbers", classNumbers);
-        request.setAttribute("entYear", entYearParam);
-        request.setAttribute("classNum", classNumParam);
-        request.setAttribute("isAttend", isAttendParam);
         request.getRequestDispatcher("student_list.jsp").forward(request, response);
     }
 
