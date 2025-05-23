@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,10 +22,11 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/StudentCreateAction")
 public class StudentCreateAction extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE";
+    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE;AUTO_RECONNECT=TRUE";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "";
     private static final int MAX_RECONNECT_ATTEMPTS = 3;
+    private static final Logger LOGGER = Logger.getLogger(StudentCreateAction.class.getName());
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,7 +38,8 @@ public class StudentCreateAction extends HttpServlet {
         List<String> classNumbers = new ArrayList<>();
         Connection conn = null;
         int reconnectAttempts = 0;
-        String error = null;
+        String error = request.getParameter("error");
+        String errorMessage = request.getParameter("message");
 
         while (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             try {
@@ -49,15 +52,20 @@ public class StudentCreateAction extends HttpServlet {
                     while (rs.next()) {
                         classNumbers.add(rs.getString("CLASS_NUM"));
                     }
+                    LOGGER.info("Loaded " + classNumbers.size() + " class numbers");
                 }
                 break;
             } catch (ClassNotFoundException e) {
+                LOGGER.severe("ClassNotFoundException: " + e.getMessage());
                 e.printStackTrace();
-                error = "H2ドライバが見つかりません: " + e.getMessage();
+                error = "driver";
+                errorMessage = "H2ドライバが見つかりません: " + e.getMessage();
                 break;
             } catch (SQLException e) {
+                LOGGER.severe("SQLException: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
                 e.printStackTrace();
-                error = "データベースエラー: " + e.getMessage();
+                error = "database";
+                errorMessage = "データベースエラー: " + e.getMessage();
                 if (e.getErrorCode() == 90020) {
                     reconnectAttempts++;
                     if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
@@ -72,16 +80,17 @@ public class StudentCreateAction extends HttpServlet {
                 if (conn != null) {
                     try {
                         conn.close();
+                        LOGGER.info("Database connection closed");
                     } catch (SQLException e) {
+                        LOGGER.severe("Failed to close connection: " + e.getMessage());
                         e.printStackTrace();
                     }
                 }
             }
         }
 
-        if (error != null) {
-            request.setAttribute("error", error);
-        }
+        request.setAttribute("error", error);
+        request.setAttribute("errorMessage", errorMessage);
         request.setAttribute("classNumbers", classNumbers);
         request.getRequestDispatcher("student_create.jsp").forward(request, response);
     }
