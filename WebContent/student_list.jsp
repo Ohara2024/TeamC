@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, seiseki.StudentListAction.Student" %>
+<%@ page import="java.util.*, java.sql.*" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -41,36 +41,55 @@
     </div>
 
     <!-- 絞り込みフォーム -->
-    <form method="get" action="StudentListAction">
+    <form method="get">
         <div class="filter-box">
             <div class="form-group">
                 <label for="entYear">入学年度</label>
                 <select name="entYear" id="entYear">
                     <option value="">--------</option>
-                    <% int currentYear = java.time.Year.now().getValue();
-                       String selectedYear = (String) request.getAttribute("entYear");
-                       for (int year = currentYear; year >= 2000; year--) { %>
-                        <option value="<%= year %>" <%= year == Integer.parseInt(selectedYear != null && !selectedYear.isEmpty() ? selectedYear : "0") ? "selected" : "" %>><%= year %></option>
-                    <% } %>
+                    <%
+                    int currentYear = java.time.Year.now().getValue();
+                    String selectedYear = request.getParameter("entYear") != null ? request.getParameter("entYear") : "";
+                    for (int year = currentYear; year >= 2000; year--) {
+                        String selected = String.valueOf(year).equals(selectedYear) ? "selected" : "";
+                        out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
+                    }
+                    %>
                 </select>
             </div>
             <div class="form-group">
                 <label for="classNum">クラス</label>
                 <select name="classNum" id="classNum">
                     <option value="">--------</option>
-                    <% List<String> classNumbers = (List<String>) request.getAttribute("classNumbers");
-                       String selectedClass = (String) request.getAttribute("classNum");
-                       if (classNumbers != null) {
-                           for (String classNum : classNumbers) { %>
-                               <option value="<%= classNum %>" <%= classNum.equals(selectedClass) ? "selected" : "" %>><%= classNum %></option>
-                    <%   }
-                       } %>
+                    <%
+                    Connection conn = null;
+                    PreparedStatement pstmt = null;
+                    ResultSet rs = null;
+                    String selectedClass = request.getParameter("classNum") != null ? request.getParameter("classNum") : "";
+                    try {
+                        Class.forName("org.h2.Driver");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                        pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                        rs = pstmt.executeQuery();
+                        while (rs.next()) {
+                            String classNum = rs.getString("CLASS_NUM");
+                            String selected = classNum.equals(selectedClass) ? "selected" : "";
+                            out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
+                        }
+                    } catch(Exception e) {
+                        out.println("<p class='error'>クラス取得エラー: " + e.getMessage() + "</p>");
+                    } finally {
+                        if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                        if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+                        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+                    }
+                    %>
                 </select>
             </div>
             <div class="form-group">
                 <label for="isAttend" class="checkbox-label">
                     在学中
-                    <input type="checkbox" name="isAttend" id="isAttend" value="1" <%= "1".equals(request.getAttribute("isAttend")) ? "checked" : "" %>>
+                    <input type="checkbox" name="isAttend" id="isAttend" value="1" <%= "1".equals(request.getParameter("isAttend")) ? "checked" : "" %>>
                 </label>
             </div>
             <div class="form-group">
@@ -79,14 +98,59 @@
         </div>
     </form>
 
-    <% String error = (String) request.getAttribute("error"); %>
+    <%
+    String error = null;
+    List<Map<String, Object>> students = new ArrayList<>();
+    Integer resultCount = 0;
+    try {
+        Class.forName("org.h2.Driver");
+        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+        StringBuilder query = new StringBuilder("SELECT NO, ENT_YEAR, NAME, CLASS_NUM, IS_ATTEND FROM STUDENT WHERE 1=1");
+        List<String> params = new ArrayList<>();
+
+        if (request.getParameter("entYear") != null && !request.getParameter("entYear").isEmpty()) {
+            query.append(" AND ENT_YEAR = ?");
+            params.add(request.getParameter("entYear"));
+        }
+        if (request.getParameter("classNum") != null && !request.getParameter("classNum").isEmpty()) {
+            query.append(" AND CLASS_NUM = ?");
+            params.add(request.getParameter("classNum"));
+        }
+        if ("1".equals(request.getParameter("isAttend"))) {
+            query.append(" AND IS_ATTEND = ?");
+            params.add("true");
+        }
+
+        pstmt = conn.prepareStatement(query.toString());
+        for (int i = 0; i < params.size(); i++) {
+            pstmt.setString(i + 1, params.get(i));
+        }
+        rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> student = new HashMap<>();
+            student.put("NO", rs.getString("NO"));
+            student.put("ENT_YEAR", rs.getInt("ENT_YEAR"));
+            student.put("NAME", rs.getString("NAME"));
+            student.put("CLASS_NUM", rs.getString("CLASS_NUM"));
+            student.put("IS_ATTEND", rs.getBoolean("IS_ATTEND"));
+            students.add(student);
+        }
+        resultCount = students.size();
+    } catch (Exception e) {
+        error = "検索エラー: " + e.getMessage();
+    } finally {
+        if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+        if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+    }
+    %>
+
     <% if (error != null) { %>
         <p class="error"><%= error %></p>
     <% } %>
 
-    <% List<Student> students = (List<Student>) request.getAttribute("students");
-       Integer resultCount = (Integer) request.getAttribute("resultCount");
-       if (resultCount == null || resultCount == 0) { %>
+    <% if (resultCount == 0) { %>
         <p>学生情報が存在しませんでした</p>
     <% } else { %>
         <p>検索結果：<%= resultCount %> 件</p>
@@ -102,14 +166,14 @@
                 </tr>
             </thead>
             <tbody>
-                <% for (Student student : students) { %>
+                <% for (Map<String, Object> student : students) { %>
                     <tr>
-                        <td><%= student.getEntYear() %></td>
-                        <td><%= student.getNo() %></td>
-                        <td><%= student.getName() %></td>
-                        <td><%= student.getClassNum() %></td>
-                        <td><%= student.isAttend() ? "○" : "×" %></td>
-                        <td><a href="StudentUpdateAction?studentNo=<%= student.getNo() %>">変更</a></td>
+                        <td><%= student.get("ENT_YEAR") %></td>
+                        <td><%= student.get("NO") %></td>
+                        <td><%= student.get("NAME") %></td>
+                        <td><%= student.get("CLASS_NUM") %></td>
+                        <td><%= (Boolean)student.get("IS_ATTEND") ? "○" : "×" %></td>
+                        <td><a href="StudentUpdateAction?studentNo=<%= student.get("NO") %>">変更</a></td>
                     </tr>
                 <% } %>
             </tbody>

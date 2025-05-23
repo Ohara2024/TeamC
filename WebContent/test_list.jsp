@@ -1,10 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*, java.sql.*, seiseki.DBConnection" %>
+<%@ page import="java.util.*, java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>得点管理システム</title>
+    <!-- 既存のスタイルはそのまま -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -116,7 +117,8 @@
                 PreparedStatement pstmt = null;
                 ResultSet rs = null;
                 try {
-                    conn = DBConnection.getConnection();
+                    Class.forName("org.h2.Driver");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                     pstmt = conn.prepareStatement("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -140,7 +142,8 @@
                 <%
                 String selectedClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : "";
                 try {
-                    conn = DBConnection.getConnection();
+                    Class.forName("org.h2.Driver");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                     pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -164,7 +167,8 @@
                 <%
                 String selectedSubjectCd = request.getParameter("subject_cd") != null ? request.getParameter("subject_cd") : "";
                 try {
-                    conn = DBConnection.getConnection();
+                    Class.forName("org.h2.Driver");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                     pstmt = conn.prepareStatement("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -216,8 +220,8 @@
     <%
     if (searched && !allSubjectConditionsEmpty || (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty())) {
         try {
-            conn = DBConnection.getConnection();
-
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
             StringBuilder query = new StringBuilder(
                 "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME AS STUDENT_NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
                 "FROM TEST T " +

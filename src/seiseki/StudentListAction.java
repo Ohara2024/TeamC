@@ -2,6 +2,7 @@ package seiseki;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,6 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/StudentListAction")
 public class StudentListAction extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String DB_URL = "jdbc:h2:~/exam";
+    private static final String DB_USER = "sa";
+    private static final String DB_PASSWORD = "";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,7 +38,12 @@ public class StudentListAction extends HttpServlet {
         List<Student> students = new ArrayList<>();
         int resultCount = 0;
 
-        try (Connection conn = DBConnection.getConnection()) {
+        Connection conn = null;
+        try {
+            // H2ドライバのロード
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
             StringBuilder query = new StringBuilder("SELECT * FROM STUDENT WHERE 1=1");
             if (entYearParam != null && !entYearParam.isEmpty()) {
                 query.append(" AND ENT_YEAR = ?");
@@ -71,20 +80,39 @@ public class StudentListAction extends HttpServlet {
                     resultCount++;
                 }
             }
+        } catch (ClassNotFoundException e) {
+            request.setAttribute("error", "H2ドライバが見つかりません: " + e.getMessage());
         } catch (SQLException e) {
             request.setAttribute("error", "データベースエラー: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ignored) {}
+            }
         }
 
         // クラス一覧を取得
         List<String> classNumbers = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                classNumbers.add(rs.getString("CLASS_NUM"));
+        try {
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            try (PreparedStatement pstmt = conn.prepareStatement("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                 ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    classNumbers.add(rs.getString("CLASS_NUM"));
+                }
             }
+        } catch (ClassNotFoundException e) {
+            request.setAttribute("error", "H2ドライバが見つかりません: " + e.getMessage());
         } catch (SQLException e) {
             request.setAttribute("error", "データベースエラー: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ignored) {}
+            }
         }
 
         request.setAttribute("students", students);
