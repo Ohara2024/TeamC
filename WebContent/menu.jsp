@@ -116,7 +116,7 @@
         <div class="card score">
             <h3>成績管理</h3>
             <a href="seiseki_regist.jsp">成績登録</a>
-            <a href="seiseki_regist.jsp">成績参照</a>
+            <a href="test_list.jsp">成績参照</a>
         </div>
 
         <div class="card subject">
