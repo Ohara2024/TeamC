@@ -111,7 +111,7 @@
             <label>入学年度</label>
             <select name="ent_year">
                 <option value="">--------</option>
-                <% 
+                <%
                 String selectedEntYear = request.getParameter("ent_year") != null ? request.getParameter("ent_year") : "";
                 try {
                     Class.forName("org.h2.Driver");
@@ -133,7 +133,7 @@
             <label>クラス</label>
             <select name="class_num">
                 <option value="">--------</option>
-                <% 
+                <%
                 String selectedClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : "";
                 try {
                     Class.forName("org.h2.Driver");
@@ -155,7 +155,7 @@
             <label>科目</label>
             <select name="subject_cd">
                 <option value="">--------</option>
-                <% 
+                <%
                 String selectedSubjectCd = request.getParameter("subject_cd") != null ? request.getParameter("subject_cd") : "";
                 try {
                     Class.forName("org.h2.Driver");
@@ -179,9 +179,9 @@
 
             <input type="submit" value="検索">
             <%
-            boolean searched = (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) || 
-                              (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) || 
-                              (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) || 
+            boolean searched = (request.getParameter("ent_year") != null && !request.getParameter("ent_year").isEmpty()) ||
+                              (request.getParameter("class_num") != null && !request.getParameter("class_num").isEmpty()) ||
+                              (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty()) ||
                               (request.getParameter("subject_cd") != null && !request.getParameter("subject_cd").isEmpty());
 
             boolean allSubjectConditionsEmpty = (request.getParameter("ent_year") == null || request.getParameter("ent_year").isEmpty()) &&
@@ -243,7 +243,7 @@
 
                 groupedData.putIfAbsent(studentNo, new java.util.HashMap<String, java.util.Map<String, Object>>());
                 groupedData.get(studentNo).putIfAbsent(subjectName, new java.util.HashMap<String, Object>());
-                
+
                 java.util.Map<String, Object> subjectData = groupedData.get(studentNo).get(subjectName);
                 if (!subjectData.containsKey("ENT_YEAR")) {
                     subjectData.put("ENT_YEAR", entYear);
@@ -271,7 +271,7 @@
                         <th>1回目</th>
                         <th>2回目</th>
                     </tr>
-                    <% 
+                    <%
                     for (String studentNo : groupedData.keySet()) {
                         for (String subjectName : groupedData.get(studentNo).keySet()) {
                             java.util.Map<String, Object> data = groupedData.get(studentNo).get(subjectName);
