@@ -5,7 +5,6 @@
 <head>
     <meta charset="UTF-8">
     <title>得点管理システム</title>
-    <!-- 既存のスタイルはそのまま -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -118,7 +117,7 @@
                 ResultSet rs = null;
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
                     pstmt = conn.prepareStatement("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -127,6 +126,7 @@
                         out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
                     }
                 } catch(Exception e) {
+                    e.printStackTrace(); // デバッグ用ログ
                     out.println("<p class='message'>入学年度取得エラー: " + e.getMessage() + "</p>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
@@ -143,7 +143,7 @@
                 String selectedClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : "";
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
                     pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -152,6 +152,7 @@
                         out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
                     }
                 } catch(Exception e) {
+                    e.printStackTrace(); // デバッグ用ログ
                     out.println("<p class='message'>クラス取得エラー: " + e.getMessage() + "</p>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
@@ -168,7 +169,7 @@
                 String selectedSubjectCd = request.getParameter("subject_cd") != null ? request.getParameter("subject_cd") : "";
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
                     pstmt = conn.prepareStatement("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
                     rs = pstmt.executeQuery();
                     while (rs.next()) {
@@ -180,6 +181,7 @@
                         out.println("<option value='" + value + "' " + selected + ">" + subjectName + "</option>");
                     }
                 } catch(Exception e) {
+                    e.printStackTrace(); // デバッグ用ログ
                     out.println("<p class='message'>科目取得エラー: " + e.getMessage() + "</p>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
@@ -221,7 +223,7 @@
     if (searched && !allSubjectConditionsEmpty || (request.getParameter("student_no") != null && !request.getParameter("student_no").isEmpty())) {
         try {
             Class.forName("org.h2.Driver");
-            conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+            conn = DriverManager.getConnection("jdbc:h2:~/exam;AUTO_SERVER=TRUE", "sa", "");
             StringBuilder query = new StringBuilder(
                 "SELECT S.ENT_YEAR, T.CLASS_NUM, T.STUDENT_NO, S.NAME AS STUDENT_NAME, SU.NAME AS SUBJECT_NAME, T.NO, T.POINT " +
                 "FROM TEST T " +
@@ -297,6 +299,7 @@
                         out.println("<p class='message'>SUBJECTテーブルレコード数: " + rs.getInt("cnt") + "</p>");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace(); // デバッグ用ログ
                     out.println("<p class='message'>デバッグエラー: " + e.getMessage() + "</p>");
                 }
             } else {
@@ -331,6 +334,7 @@
                 <%
             }
         } catch(Exception e) {
+            e.printStackTrace(); // デバッグ用ログ
             out.println("<p class='message'>検索エラー: " + e.getMessage() + "</p>");
         } finally {
             if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
