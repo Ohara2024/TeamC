@@ -1,35 +1,27 @@
 package bean;
 
-import java.io.Serializable;
+public class School {
+    private String cd;
+    private String name; // name フィールドを追加
 
-public class School implements Serializable {
+    public String getCd() {
+        return cd;
+    }
 
-	/**
-	 * 学校コード:String
-	 */
-	private String cd;
+    public void setCd(String cd) {
+        this.cd = cd;
+    }
 
-	/**
-	 * 学校名:String
-	 */
-	private String name;
+    public String getName() { // getName メソッドを追加
+        return name;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public String getCd() {
-		return cd;
-	}
+    public void setName(String name) { // setName メソッドを追加
+        this.name = name;
+    }
 
-	public void setCd(String cd) {
-		this.cd = cd;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Override
+    public String toString() {
+        return "School{cd='" + cd + "', name='" + name + "'}"; // toString に name を追加
+    }
 }

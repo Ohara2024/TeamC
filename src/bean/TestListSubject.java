@@ -1,115 +1,44 @@
 package bean;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-public class TestListSubject implements Serializable {
-	/**
-	 * 入学年度:int
-	 */
-	private int entYear;
+public class TestListSubject {
+    private String subjectCd;  // 科目コード
+    private String subjectName; // 科目名
+    private List<Test> tests;  // 関連するテストリスト
 
-	/**
-	 * 学生番号:String
-	 */
-	private String studentNo;
+    // デフォルトコンストラクタ
+    public TestListSubject() {}
 
-	/**
-	 * 学生氏名:String
-	 */
-	private String studentName;
+    // 全フィールド指定コンストラクタ
+    public TestListSubject(String subjectCd, String subjectName, List<Test> tests) {
+        this.subjectCd = subjectCd;
+        this.subjectName = subjectName;
+        this.tests = tests;
+    }
 
-	/**
-	 * クラス番号:String
-	 */
-	private String classNum;
+    // ゲッターとセッター
+    public String getSubjectCd() {
+        return subjectCd;
+    }
 
-	/**
-	 * 得点マップ:Map<Integer, Integer> key:回数, value:得点
-	 */
-	private Map<Integer, Integer> points;
+    public void setSubjectCd(String subjectCd) {
+        this.subjectCd = subjectCd;
+    }
 
-	/**
-	 * コンストラクタ
-	 */
-	public TestListSubject() {
-		// 得点マップを初期化
-		points = new HashMap<>();
-	}
+    public String getSubjectName() {
+        return subjectName;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public int getEntYear() {
-		return entYear;
-	}
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
+    }
 
-	public void setEntYear(int entYear) {
-		this.entYear = entYear;
-	}
+    public List<Test> getTests() {
+        return tests;
+    }
 
-	public String getStudentNo() {
-		return studentNo;
-	}
-
-	public void setStudentNo(String student_no) {
-		this.studentNo = student_no;
-	}
-
-	public String getStudentName() {
-		return studentName;
-	}
-
-	public void setStudentName(String student_name) {
-		this.studentName = student_name;
-	}
-
-	public String getClassNum() {
-		return classNum;
-	}
-
-	public void setClassNum(String classNum) {
-		this.classNum = classNum;
-	}
-
-	public Map<Integer, Integer> getPoints() {
-		return points;
-	}
-
-	public void setPoints(Map<Integer, Integer> points) {
-		this.points = points;
-	}
-
-	/**
-	 * getPointメソッド 得点マップから値を取得する
-	 *
-	 * @param key:int
-	 *            回数
-	 * @return 得点:String
-	 */
-	public String getPoint(int key) {
-		// 得点マップから値を取得
-		Integer k = points.get(key);
-		if (k == null) {
-			// 得点マップに値が存在しなかった場合"-"を返却
-			return "-";
-		} else {
-			// 得点マップに値が存在した場合、文字列として得点を返却
-			return k.toString();
-		}
-	}
-
-	/**
-	 * putPointメソッド 得点マップに値を格納する
-	 *
-	 * @param key:int
-	 *            回数
-	 * @param value:int
-	 *            得点
-	 */
-	public void putPoint(int key, int value) {
-		// 得点マップに値を格納
-		points.put(key, value);
-	}
+    public void setTests(List<Test> tests) {
+        this.tests = tests;
+    }
 }

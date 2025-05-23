@@ -1,34 +1,32 @@
 package bean;
 
-import java.io.Serializable;
+public class ClassNum {
+    private String schoolCd;  // SCHOOL_CD
+    private String classNum;  // CLASS_NUM
 
-public class ClassNum implements Serializable {
-	/**
-	 * 学校:School
-	 */
-	private School school;
+    // デフォルトコンストラクタ
+    public ClassNum() {}
 
-	/**
-	 * クラス番号:String
-	 */
-	private String num;
+    // 全フィールド指定コンストラクタ
+    public ClassNum(String schoolCd, String classNum) {
+        this.schoolCd = schoolCd;
+        this.classNum = classNum;
+    }
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public School getSchool() {
-		return school;
-	}
+    // ゲッターとセッター
+    public String getSchoolCd() {
+        return schoolCd;
+    }
 
-	public void setSchool(School school) {
-		this.school = school;
-	}
+    public void setSchoolCd(String schoolCd) {
+        this.schoolCd = schoolCd;
+    }
 
-	public String getNum() {
-		return num;
-	}
+    public String getClassNum() {
+        return classNum;
+    }
 
-	public void setNum(String num) {
-		this.num = num;
-	}
+    public void setClassNum(String classNum) {
+        this.classNum = classNum;
+    }
 }
