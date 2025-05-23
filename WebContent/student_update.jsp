@@ -45,46 +45,70 @@
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        try {
-            Class.forName("org.h2.Driver");
-            conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
+        int reconnectAttempts = 0;
+        boolean connected = false;
 
-            // 学生情報取得
-            if (studentNo != null && !studentNo.isEmpty()) {
-                pstmt = conn.prepareStatement("SELECT NO, ENT_YEAR, NAME, CLASS_NUM, SCHOOL_CD FROM STUDENT WHERE NO = ?");
-                pstmt.setString(1, studentNo);
-                rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    student = new HashMap<>();
-                    student.put("NO", rs.getString("NO"));
-                    student.put("ENT_YEAR", rs.getInt("ENT_YEAR"));
-                    student.put("NAME", rs.getString("NAME"));
-                    student.put("CLASS_NUM", rs.getString("CLASS_NUM"));
-                    student.put("SCHOOL_CD", rs.getString("SCHOOL_CD"));
+        while (reconnectAttempts < 3) {
+            try {
+                Class.forName("org.h2.Driver");
+                conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "");
+                conn.setAutoCommit(true);
+
+                // 学生情報取得
+                if (studentNo != null && !studentNo.isEmpty()) {
+                    pstmt = conn.prepareStatement("SELECT NO, ENT_YEAR, NAME, CLASS_NUM, SCHOOL_CD FROM STUDENT WHERE NO = ?");
+                    pstmt.setString(1, studentNo);
+                    rs = pstmt.executeQuery();
+                    if (rs.next()) {
+                        student = new HashMap<>();
+                        student.put("NO", rs.getString("NO"));
+                        student.put("ENT_YEAR", rs.getInt("ENT_YEAR"));
+                        student.put("NAME", rs.getString("NAME"));
+                        student.put("CLASS_NUM", rs.getString("CLASS_NUM"));
+                        student.put("SCHOOL_CD", rs.getString("SCHOOL_CD"));
+                    } else {
+                        error = "指定された学生が見つかりません。";
+                    }
+                    rs.close();
+                    pstmt.close();
                 } else {
-                    error = "指定された学生が見つかりません。";
+                    error = "学生番号が指定されていません。";
                 }
-                rs.close();
-                pstmt.close();
-            } else {
-                error = "学生番号が指定されていません。";
-            }
 
-            // クラス一覧取得
-            pstmt = conn.prepareStatement("SELECT CLASS_NUM, SCHOOL_CD FROM CLASS_NUM ORDER BY CLASS_NUM");
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                Map<String, String> classNum = new HashMap<>();
-                classNum.put("CLASS_NUM", rs.getString("CLASS_NUM"));
-                classNum.put("SCHOOL_CD", rs.getString("SCHOOL_CD"));
-                classNumbers.add(classNum);
+                // クラス一覧取得
+                pstmt = conn.prepareStatement("SELECT CLASS_NUM, SCHOOL_CD FROM CLASS_NUM ORDER BY CLASS_NUM");
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    Map<String, String> classNum = new HashMap<>();
+                    classNum.put("CLASS_NUM", rs.getString("CLASS_NUM"));
+                    classNum.put("SCHOOL_CD", rs.getString("SCHOOL_CD"));
+                    classNumbers.add(classNum);
+                }
+                connected = true;
+                break;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                if (e.getErrorCode() == 90020) {
+                    reconnectAttempts++;
+                    if (reconnectAttempts < 3) {
+                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                        continue;
+                    }
+                }
+                error = "データ取得エラー: " + e.getMessage();
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+                error = "データ取得エラー: " + e.getMessage();
+                break;
+            } finally {
+                if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+                if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
             }
-        } catch (Exception e) {
-            error = "データ取得エラー: " + e.getMessage();
-        } finally {
-            if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
-            if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+        }
+        if (!connected) {
+            error = "データ取得に失敗しました。データベース接続を確認してください。";
         }
         %>
 
