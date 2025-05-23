@@ -1,3 +1,4 @@
+```jsp
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="java.util.*, java.sql.*" %>
 <!DOCTYPE html>
@@ -66,22 +67,45 @@
                     PreparedStatement pstmt = null;
                     ResultSet rs = null;
                     String selectedClass = request.getParameter("classNum") != null ? request.getParameter("classNum") : "";
-                    try {
-                        Class.forName("org.h2.Driver");
-                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
-                        pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
-                        rs = pstmt.executeQuery();
-                        while (rs.next()) {
-                            String classNum = rs.getString("CLASS_NUM");
-                            String selected = classNum.equals(selectedClass) ? "selected" : "";
-                            out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
+                    int reconnectAttempts = 0;
+                    boolean connected = false;
+                    while (reconnectAttempts < 3) {
+                        try {
+                            Class.forName("org.h2.Driver");
+                            conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "");
+                            conn.setAutoCommit(true);
+                            pstmt = conn.prepareStatement("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                            rs = pstmt.executeQuery();
+                            while (rs.next()) {
+                                String classNum = rs.getString("CLASS_NUM");
+                                String selected = classNum.equals(selectedClass) ? "selected" : "";
+                                out.println("<option value='" + classNum + "' " + selected + ">" + classNum + "</option>");
+                            }
+                            connected = true;
+                            break;
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            if (e.getErrorCode() == 90020) {
+                                reconnectAttempts++;
+                                if (reconnectAttempts < 3) {
+                                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                                    continue;
+                                }
+                            }
+                            out.println("<p class='error'>クラス取得エラー: " + e.getMessage() + "</p>");
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            out.println("<p class='error'>クラス取得エラー: " + e.getMessage() + "</p>");
+                            break;
+                        } finally {
+                            if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+                            if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
                         }
-                    } catch(Exception e) {
-                        out.println("<p class='error'>クラス取得エラー: " + e.getMessage() + "</p>");
-                    } finally {
-                        if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-                        if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
-                        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+                    }
+                    if (!connected) {
+                        out.println("<p class='error'>クラス取得に失敗しました。データベース接続を確認してください。</p>");
                     }
                     %>
                 </select>
@@ -102,47 +126,70 @@
     String error = null;
     List<Map<String, Object>> students = new ArrayList<>();
     Integer resultCount = 0;
-    try {
-        Class.forName("org.h2.Driver");
-        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
-        StringBuilder query = new StringBuilder("SELECT NO, ENT_YEAR, NAME, CLASS_NUM, IS_ATTEND FROM STUDENT WHERE 1=1");
-        List<String> params = new ArrayList<>();
+    reconnectAttempts = 0;
+    connected = false;
+    while (reconnectAttempts < 3) {
+        try {
+            Class.forName("org.h2.Driver");
+            conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "");
+            conn.setAutoCommit(true);
+            StringBuilder query = new StringBuilder("SELECT NO, ENT_YEAR, NAME, CLASS_NUM, IS_ATTEND FROM STUDENT WHERE 1=1");
+            List<String> params = new ArrayList<>();
 
-        if (request.getParameter("entYear") != null && !request.getParameter("entYear").isEmpty()) {
-            query.append(" AND ENT_YEAR = ?");
-            params.add(request.getParameter("entYear"));
-        }
-        if (request.getParameter("classNum") != null && !request.getParameter("classNum").isEmpty()) {
-            query.append(" AND CLASS_NUM = ?");
-            params.add(request.getParameter("classNum"));
-        }
-        if ("1".equals(request.getParameter("isAttend"))) {
-            query.append(" AND IS_ATTEND = ?");
-            params.add("true");
-        }
+            if (request.getParameter("entYear") != null && !request.getParameter("entYear").isEmpty()) {
+                query.append(" AND ENT_YEAR = ?");
+                params.add(request.getParameter("entYear"));
+            }
+            if (request.getParameter("classNum") != null && !request.getParameter("classNum").isEmpty()) {
+                query.append(" AND CLASS_NUM = ?");
+                params.add(request.getParameter("classNum"));
+            }
+            if ("1".equals(request.getParameter("isAttend"))) {
+                query.append(" AND IS_ATTEND = ?");
+                params.add("true");
+            }
 
-        pstmt = conn.prepareStatement(query.toString());
-        for (int i = 0; i < params.size(); i++) {
-            pstmt.setString(i + 1, params.get(i));
-        }
-        rs = pstmt.executeQuery();
+            pstmt = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+            rs = pstmt.executeQuery();
 
-        while (rs.next()) {
-            Map<String, Object> student = new HashMap<>();
-            student.put("NO", rs.getString("NO"));
-            student.put("ENT_YEAR", rs.getInt("ENT_YEAR"));
-            student.put("NAME", rs.getString("NAME"));
-            student.put("CLASS_NUM", rs.getString("CLASS_NUM"));
-            student.put("IS_ATTEND", rs.getBoolean("IS_ATTEND"));
-            students.add(student);
+            while (rs.next()) {
+                Map<String, Object> student = new HashMap<>();
+                student.put("NO", rs.getString("NO"));
+                student.put("ENT_YEAR", rs.getInt("ENT_YEAR"));
+                student.put("NAME", rs.getString("NAME"));
+                student.put("CLASS_NUM", rs.getString("CLASS_NUM"));
+                student.put("IS_ATTEND", rs.getBoolean("IS_ATTEND"));
+                students.add(student);
+            }
+            resultCount = students.size();
+            connected = true;
+            break;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (e.getErrorCode() == 90020) {
+                reconnectAttempts++;
+                if (reconnectAttempts < 3) {
+                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                    continue;
+                }
+            }
+            error = "検索エラー: " + e.getMessage();
+            break;
+        } catch (Exception e) {
+            e.printStackTrace();
+            error = "検索エラー: " + e.getMessage();
+            break;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+            if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
-        resultCount = students.size();
-    } catch (Exception e) {
-        error = "検索エラー: " + e.getMessage();
-    } finally {
-        if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
-        if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
-        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+    }
+    if (!connected) {
+        error = "検索に失敗しました。データベース接続を確認してください。";
     }
     %>
 
@@ -184,3 +231,4 @@
 <%@ include file="footer.jsp" %>
 </body>
 </html>
+```
