@@ -6,7 +6,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>科目管理</title>
+    <title>得点管理システム</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
         .content { margin-left: 220px; padding: 20px; }
