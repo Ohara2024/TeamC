@@ -2,6 +2,7 @@ package seiseki;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -20,6 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/StudentCreateAction")
 public class StudentCreateAction extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE";
+    private static final String DB_USER = "sa";
+    private static final String DB_PASSWORD = "";
+    private static final int MAX_RECONNECT_ATTEMPTS = 3;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -29,16 +34,54 @@ public class StudentCreateAction extends HttpServlet {
 
         // クラス一覧を取得
         List<String> classNumbers = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM")) {
-            while (rs.next()) {
-                classNumbers.add(rs.getString("CLASS_NUM"));
+        Connection conn = null;
+        int reconnectAttempts = 0;
+        String error = null;
+
+        while (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            try {
+                Class.forName("org.h2.Driver");
+                conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                conn.setAutoCommit(true);
+
+                try (Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM")) {
+                    while (rs.next()) {
+                        classNumbers.add(rs.getString("CLASS_NUM"));
+                    }
+                }
+                break;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                error = "H2ドライバが見つかりません: " + e.getMessage();
+                break;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                error = "データベースエラー: " + e.getMessage();
+                if (e.getErrorCode() == 90020) {
+                    reconnectAttempts++;
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ignored) {}
+                        continue;
+                    }
+                }
+                break;
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        } catch (SQLException e) {
-            request.setAttribute("error", "データベースエラー: " + e.getMessage());
         }
 
+        if (error != null) {
+            request.setAttribute("error", error);
+        }
         request.setAttribute("classNumbers", classNumbers);
         request.getRequestDispatcher("student_create.jsp").forward(request, response);
     }
