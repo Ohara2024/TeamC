@@ -25,7 +25,7 @@
         a:hover { color: #0056b3; }
         /* プレースホルダーの色をグレー（#555）に */
         input::placeholder, select option[disabled] {
-            color: #555;
+            color: #555;「
             opacity: 1; /* Firefox対策 */
         }
     </style>
