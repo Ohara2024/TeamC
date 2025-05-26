@@ -14,9 +14,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import bean.Teacher;
 
 /**
  * 学生一覧を表示するアクション。
@@ -35,10 +32,6 @@ public class StudentListAction extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
 
-        HttpSession session = request.getSession();
-        Teacher teacher = (Teacher) session.getAttribute("teacher");
-        String schoolCd = (teacher != null) ? teacher.getSchoolCd() : null;
-
         String entYearParam = request.getParameter("entYear");
         String classNumParam = request.getParameter("classNum");
         String isAttendParam = request.getParameter("isAttend");
@@ -52,22 +45,18 @@ public class StudentListAction extends HttpServlet {
 
         while (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             try {
+                // H2ドライバのロード
                 Class.forName("org.h2.Driver");
                 conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                conn.setAutoCommit(true);
+                conn.setAutoCommit(true); // 自動コミットを明示的に有効化
 
-                // 学生一覧を取得（SCHOOL_CDでフィルタリング）
-                StringBuilder query = new StringBuilder("SELECT * FROM STUDENT WHERE SCHOOL_CD = ?");
-                List<String> params = new ArrayList<>();
-                params.add(schoolCd);
-
+                // 学生一覧を取得
+                StringBuilder query = new StringBuilder("SELECT * FROM STUDENT WHERE 1=1");
                 if (entYearParam != null && !entYearParam.isEmpty()) {
                     query.append(" AND ENT_YEAR = ?");
-                    params.add(entYearParam);
                 }
                 if (classNumParam != null && !classNumParam.isEmpty()) {
                     query.append(" AND CLASS_NUM = ?");
-                    params.add(classNumParam);
                 }
                 if (isAttendParam != null) {
                     query.append(" AND IS_ATTEND = TRUE");
@@ -77,8 +66,12 @@ public class StudentListAction extends HttpServlet {
                         query.toString(),
                         ResultSet.TYPE_SCROLL_INSENSITIVE,
                         ResultSet.CONCUR_READ_ONLY)) {
-                    for (int i = 0; i < params.size(); i++) {
-                        pstmt.setString(i + 1, params.get(i));
+                    int idx = 1;
+                    if (entYearParam != null && !entYearParam.isEmpty()) {
+                        pstmt.setString(idx++, entYearParam);
+                    }
+                    if (classNumParam != null && !classNumParam.isEmpty()) {
+                        pstmt.setString(idx++, classNumParam);
                     }
 
                     ResultSet rs = pstmt.executeQuery();
@@ -95,12 +88,10 @@ public class StudentListAction extends HttpServlet {
                     }
                 }
 
-                // クラス一覧を取得（SCHOOL_CDでフィルタリング）
+                // クラス一覧を取得
                 List<String> classNumbers = new ArrayList<>();
-                try (PreparedStatement pstmt = conn.prepareStatement(
-                        "SELECT DISTINCT CLASS_NUM FROM CLASS_NUM WHERE SCHOOL_CD = ? ORDER BY CLASS_NUM")) {
-                    pstmt.setString(1, schoolCd);
-                    ResultSet rs = pstmt.executeQuery();
+                try (PreparedStatement pstmt = conn.prepareStatement("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
+                     ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         classNumbers.add(rs.getString("CLASS_NUM"));
                     }
@@ -112,19 +103,19 @@ public class StudentListAction extends HttpServlet {
                 request.setAttribute("entYear", entYearParam);
                 request.setAttribute("classNum", classNumParam);
                 request.setAttribute("isAttend", isAttendParam);
-                break;
+                break; // 成功したらループを抜ける
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // デバッグ用ログ
                 error = "H2ドライバが見つかりません: " + e.getMessage();
-                break;
+                break; // ドライバエラーは再試行しない
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // デバッグ用ログ
                 error = "データベースエラー: " + e.getMessage();
-                if (e.getErrorCode() == 90020) {
+                if (e.getErrorCode() == 90020) { // Database may be already in use
                     reconnectAttempts++;
                     if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(1000); // 1秒待機して再試行
                         } catch (InterruptedException ignored) {}
                         continue;
                     }
@@ -135,7 +126,7 @@ public class StudentListAction extends HttpServlet {
                     try {
                         conn.close();
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        e.printStackTrace(); // デバッグ用ログ
                     }
                 }
             }
