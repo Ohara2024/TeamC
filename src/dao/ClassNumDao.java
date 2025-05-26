@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import bean.ClassNum;
 import bean.School;
 
 public class ClassNumDao extends Dao {
@@ -62,5 +63,46 @@ public class ClassNumDao extends Dao {
 
 		return list;
 	}
+	public ClassNum findByTeacherId(String teacherId) throws Exception {
+	    ClassNum classNum = null;
+	    Connection connection = getConnection();
+	    PreparedStatement statement = null;
+
+	    try {
+	        String sql = "SELECT * FROM class_num WHERE teacher_id = ?";
+	        statement = connection.prepareStatement(sql);
+	        statement.setString(1, teacherId);
+	        ResultSet rs = statement.executeQuery();
+
+	        if (rs.next()) {
+	            classNum = new ClassNum();
+	            classNum.setTeacherId(rs.getString("teacher_id"));
+	            classNum.setSchoolcd(rs.getString("schoolcd"));
+	            classNum.setClassnum(rs.getString("classnum"));
+	        }
+
+	        rs.close();
+	    } catch (Exception e) {
+	        throw e;
+	    } finally {
+	        if (statement != null) {
+	            try {
+	                statement.close();
+	            } catch (SQLException sqle) {
+	                throw sqle;
+	            }
+	        }
+	        if (connection != null) {
+	            try {
+	                connection.close();
+	            } catch (SQLException sqle) {
+	                throw sqle;
+	            }
+	        }
+	    }
+
+	    return classNum;
+	}
+
 
 }

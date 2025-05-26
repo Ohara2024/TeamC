@@ -3,32 +3,34 @@ package bean;
 import java.io.Serializable;
 
 public class ClassNum implements Serializable {
-	/**
-	 * 学校:School
-	 */
-	private School school;
 
-	/**
-	 * クラス番号:String
-	 */
-	private String num;
+    private String teacherId;
+    private String schoolcd;
+    private String classnum;
 
-	/**
-	 * ゲッター、セッター
-	 */
-	public School getSchool() {
-		return school;
-	}
+    // ゲッター・セッター
 
-	public void setSchool(School school) {
-		this.school = school;
-	}
+    public String getTeacherId() {
+        return teacherId;
+    }
 
-	public String getNum() {
-		return num;
-	}
+    public void setTeacherId(String teacherId) {
+        this.teacherId = teacherId;
+    }
 
-	public void setNum(String num) {
-		this.num = num;
-	}
+    public String getSchoolcd() {
+        return schoolcd;
+    }
+
+    public void setSchoolcd(String schoolcd) {
+        this.schoolcd = schoolcd;
+    }
+
+    public String getClassnum() {
+        return classnum;
+    }
+
+    public void setClassnum(String classnum) {
+        this.classnum = classnum;
+    }
 }

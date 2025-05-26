@@ -23,6 +23,25 @@ public class Teacher extends User implements Serializable {
 	 */
 	private School school;
 
+	private String schoolcd;
+	private String classnum;
+
+	public String getSchoolcd() {
+	    return schoolcd;
+	}
+
+	public void setSchoolcd(String schoolcd) {
+	    this.schoolcd = schoolcd;
+	}
+
+	public String getClassnum() {
+	    return classnum;
+	}
+
+	public void setClassnum(String classnum) {
+	    this.classnum = classnum;
+	}
+
 	/**
 	 * ゲッター、セッター
 	 */
