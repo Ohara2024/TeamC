@@ -12,7 +12,7 @@ import bean.School;
 import bean.Subject;
 
 public class SubjectDao {
-    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/seiseki";
+    private static final String DB_URL = "jdbc:h2:tcp://localhost/~/exam";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "";
 

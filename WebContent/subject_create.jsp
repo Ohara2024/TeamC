@@ -41,7 +41,7 @@
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px; /* 角を丸く */
+            border-radius: 5px;
             cursor: pointer;
         }
         input[type="submit"]:hover {
