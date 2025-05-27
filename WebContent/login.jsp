@@ -137,7 +137,7 @@
 <% } %>
 
 
-       <form action="<%= request.getContextPath() %>/FrontController" method="post">
+       <form action="<%= request.getContextPath() %>/FrontController" method="get">
 <input type="hidden" name="action" value="main.Login">
 
     <input type="text" name="id" class="form-control" placeholder="ID" required>
