@@ -1,52 +1,94 @@
 package bean;
 
-public class Teacher {
-    private String id;        // ID
-    private String password;  // PASSWORD
-    private String name;      // NAME
-    private String schoolCd;  // SCHOOL_CD
+import java.io.Serializable;
 
-    // デフォルトコンストラクタ
-    public Teacher() {}
+public class Teacher extends User implements Serializable {
 
-    // 全フィールド指定コンストラクタ
-    public Teacher(String id, String password, String name, String schoolCd) {
-        this.id = id;
-        this.password = password;
-        this.name = name;
-        this.schoolCd = schoolCd;
-    }
+	/**
 
-    // ゲッターとセッター
-    public String getId() {
-        return id;
-    }
+	 * 教員ID:String
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	 */
 
-    public String getPassword() {
-        return password;
-    }
+	private String id;
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	/**
 
-    public String getName() {
-        return name;
-    }
+	 * パスワード:String
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	 */
 
-    public String getSchoolCd() {
-        return schoolCd;
-    }
+	private String password;
 
-    public void setSchoolCd(String schoolCd) {
-        this.schoolCd = schoolCd;
-    }
+	/**
+
+	 * 教員名:String
+
+	 */
+
+	private String name;
+
+	/**
+
+	 * 所属校:School
+
+	 */
+
+	private School school;
+
+	/**
+
+	 * ゲッター、セッター
+
+	 */
+
+	public String getId() {
+
+		return id;
+
+	}
+
+	public void setId(String id) {
+
+		this.id = id;
+
+	}
+
+	public String getPassword() {
+
+		return password;
+
+	}
+
+	public void setPassword(String password) {
+
+		this.password = password;
+
+	}
+
+	public String getName() {
+
+		return name;
+
+	}
+
+	public void setName(String name) {
+
+		this.name = name;
+
+	}
+
+	public School getSchool() {
+
+		return school;
+
+	}
+
+	public void setSchool(School school) {
+
+		this.school = school;
+
+	}
+
 }
+

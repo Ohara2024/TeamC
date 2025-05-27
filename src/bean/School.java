@@ -1,19 +1,9 @@
 package bean;
 
 public class School {
-    private String cd;    // CD
-    private String name;  // NAME
+    private String cd;
+    private String name; // name フィールドを追加
 
-    // デフォルトコンストラクタ
-    public School() {}
-
-    // 全フィールド指定コンストラクタ
-    public School(String cd, String name) {
-        this.cd = cd;
-        this.name = name;
-    }
-
-    // ゲッターとセッター
     public String getCd() {
         return cd;
     }
@@ -22,11 +12,16 @@ public class School {
         this.cd = cd;
     }
 
-    public String getName() {
+    public String getName() { // getName メソッドを追加
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name) { // setName メソッドを追加
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "School{cd='" + cd + "', name='" + name + "'}"; // toString に name を追加
     }
 }

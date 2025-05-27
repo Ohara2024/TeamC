@@ -1,9 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*, seiseki.DBConnection" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.sql.*, scoremanager.main.DBConnection" %>
 
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"> <!-- 文字エンコーディングをUTF-8に設定 -->
     <title>成績管理</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; }
@@ -116,6 +117,7 @@
 
     <!-- 点数更新処理 -->
     <%
+    response.setContentType("text/html; charset=UTF-8"); // レスポンスのエンコーディングを明示
     if("POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("action") != null && request.getParameter("action").equals("update")) {
         Connection connUpdate = null;
         PreparedStatement pstmt = null;

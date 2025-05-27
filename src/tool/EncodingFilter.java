@@ -10,23 +10,30 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 public class EncodingFilter implements Filter {
-    private String encoding;
+    private String encoding = "UTF-8";
 
     @Override
-    public void init(FilterConfig config) throws ServletException {
-        encoding = config.getInitParameter("encoding");
-        if (encoding == null) encoding = "UTF-8";
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // 初期化処理（必要に応じてweb.xmlからエンコーディングを取得）
+        String encodingParam = filterConfig.getInitParameter("encoding");
+        if (encodingParam != null) {
+            encoding = encodingParam;
+        }
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        // リクエストのエンコーディングを設定
         request.setCharacterEncoding(encoding);
+        // レスポンスのエンコーディングを設定
+        response.setCharacterEncoding(encoding);
+        // 次のフィルターまたはサーブレットに処理を渡す
         chain.doFilter(request, response);
     }
 
     @Override
     public void destroy() {
-        encoding = null;
+        // 後処理（必要に応じて実装）
     }
 }
