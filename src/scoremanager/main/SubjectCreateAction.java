@@ -2,6 +2,7 @@ package scoremanager.main;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,6 +18,7 @@ import dao.SubjectDao;
 
 @WebServlet("/SubjectCreate.action")
 public class SubjectCreateAction extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(SubjectCreateAction.class.getName());
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -48,12 +50,22 @@ public class SubjectCreateAction extends HttpServlet {
         Teacher teacher = (Teacher) session.getAttribute("teacher");
 
         if (teacher == null) {
+            LOGGER.warning("Teacher not found in session");
             response.sendRedirect("login.jsp?error=session_expired");
             return;
         }
 
-        String schoolCd = teacher.getSchoolCd();
-        System.out.println("Registering subject: cd=" + subjectCd + ", name=" + subjectName + ", schoolCd=" + schoolCd);
+        if (teacher.getSchool() == null) {
+            LOGGER.warning("School not found in Teacher object");
+            request.setAttribute("error", "学校情報が見つかりません。ログインし直してください");
+            request.setAttribute("subjectCd", subjectCd);
+            request.setAttribute("subjectName", subjectName);
+            request.getRequestDispatcher("/subject_create.jsp").forward(request, response);
+            return;
+        }
+
+        String schoolCd = teacher.getSchool().getCd();
+        LOGGER.info("Registering subject: cd=" + subjectCd + ", name=" + subjectName + ", schoolCd=" + schoolCd);
 
         try {
             Subject subject = new Subject();
@@ -74,7 +86,7 @@ public class SubjectCreateAction extends HttpServlet {
             if (e.getSQLState().equals("23505")) { // H2の一意制約違反
                 errorMsg = "この科目コードはすでに登録されています";
             }
-            e.printStackTrace();
+            LOGGER.severe("SQLException: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
             request.setAttribute("error", errorMsg);
             request.setAttribute("subjectCd", subjectCd);
             request.setAttribute("subjectName", subjectName);

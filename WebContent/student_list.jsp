@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, seiseki.StudentListAction.Student" %>
+<%@ page import="java.util.*, scoremanager.main.StudentListAction.Student" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -25,6 +25,7 @@
         .top-actions { margin-bottom: 10px; display: flex; justify-content: flex-end; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; }
         input[type="checkbox"] { margin: 0; }
+        .filter-message { font-size: 14px; color: #333; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -40,31 +41,51 @@
         <a href="StudentCreateAction">新規登録</a>
     </div>
 
+    <!-- セッションからschoolCdを取得 -->
+    <% String schoolCd = (String) session.getAttribute("schoolCd"); %>
+
     <!-- 絞り込みフォーム -->
-    <form method="get" action="StudentListAction">
+    <form action="StudentListAction" method="get" id="filterForm">
         <div class="filter-box">
             <div class="form-group">
                 <label for="entYear">入学年度</label>
                 <select name="entYear" id="entYear">
                     <option value="">--------</option>
-                    <% int currentYear = java.time.Year.now().getValue();
-                       String selectedYear = (String) request.getAttribute("entYear");
-                       for (int year = currentYear; year >= 2000; year--) { %>
-                        <option value="<%= year %>" <%= year == Integer.parseInt(selectedYear != null && !selectedYear.isEmpty() ? selectedYear : "0") ? "selected" : "" %>><%= year %></option>
-                    <% } %>
+                    <%
+                    int currentYear = java.time.Year.now().getValue();
+                    String selectedYear = (String) request.getAttribute("entYear");
+                    if (selectedYear == null) selectedYear = "";
+                    for (int year = currentYear; year >= 2000; year--) {
+                        String selected = String.valueOf(year).equals(selectedYear) ? "selected" : "";
+                        out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
+                    }
+                    %>
                 </select>
             </div>
             <div class="form-group">
                 <label for="classNum">クラス</label>
                 <select name="classNum" id="classNum">
                     <option value="">--------</option>
-                    <% List<String> classNumbers = (List<String>) request.getAttribute("classNumbers");
-                       String selectedClass = (String) request.getAttribute("classNum");
-                       if (classNumbers != null) {
-                           for (String classNum : classNumbers) { %>
-                               <option value="<%= classNum %>" <%= classNum.equals(selectedClass) ? "selected" : "" %>><%= classNum %></option>
-                    <%   }
-                       } %>
+                    <%
+                    String selectedClass = (String) request.getAttribute("classNum");
+                    // 初回ロード時にschoolCdをデフォルトとして設定
+                    if (selectedClass == null || selectedClass.isEmpty()) {
+                        selectedClass = schoolCd != null ? schoolCd : "";
+                    }
+                    String[][] classOptions = {
+                        {"101", "101"},
+                        {"131", "131"},
+                        {"201", "201"},
+                        {"tky", "東京"},
+                        {"oom", "大宮"}
+                    };
+                    for (String[] option : classOptions) {
+                        String value = option[0];
+                        String label = option[1];
+                        String selected = value.equals(selectedClass) ? "selected" : "";
+                        out.println("<option value='" + value + "' " + selected + ">" + label + "</option>");
+                    }
+                    %>
                 </select>
             </div>
             <div class="form-group">
@@ -74,19 +95,37 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="絞り込み">
+                <input type="submit" value="絞り込み" id="filterSubmit">
             </div>
         </div>
     </form>
 
-    <% String error = (String) request.getAttribute("error"); %>
+    <%
+    String error = (String) request.getAttribute("error");
+    List<Student> students = (List<Student>) request.getAttribute("students");
+    Integer resultCount = (Integer) request.getAttribute("resultCount");
+    if (resultCount == null) resultCount = 0;
+
+    // フィルターメッセージの設定
+    String filterMessage = "";
+    if (selectedClass != null && !selectedClass.isEmpty()) {
+        if ("tky".equals(selectedClass)) {
+            filterMessage = "東京の学生を表示中";
+        } else if ("oom".equals(selectedClass)) {
+            filterMessage = "大宮の学生を表示中";
+        }
+    }
+    %>
+
     <% if (error != null) { %>
         <p class="error"><%= error %></p>
     <% } %>
 
-    <% List<Student> students = (List<Student>) request.getAttribute("students");
-       Integer resultCount = (Integer) request.getAttribute("resultCount");
-       if (resultCount == null || resultCount == 0) { %>
+    <% if (!filterMessage.isEmpty()) { %>
+        <p class="filter-message"><%= filterMessage %></p>
+    <% } %>
+
+    <% if (resultCount == 0) { %>
         <p>学生情報が存在しませんでした</p>
     <% } else { %>
         <p>検索結果：<%= resultCount %> 件</p>
@@ -118,5 +157,28 @@
 </div>
 
 <%@ include file="footer.jsp" %>
+
+<script>
+    window.onload = function() {
+        var schoolCd = '<%= schoolCd != null ? schoolCd : "" %>';
+        var classNumSelect = document.getElementById('classNum');
+        var form = document.getElementById('filterForm');
+        var isInitialLoad = <%= request.getAttribute("classNum") == null &&
+                              request.getAttribute("entYear") == null &&
+                              request.getAttribute("isAttend") == null %>;
+
+        console.log("schoolCd: " + schoolCd);
+        console.log("classNumSelect.value: " + classNumSelect.value);
+        console.log("isInitialLoad: " + isInitialLoad);
+
+        // 初回ロードかつschoolCdが有効な場合、classNumをschoolCdに設定してフォームを送信
+        if (isInitialLoad && schoolCd && (classNumSelect.value === "" || classNumSelect.value === schoolCd)) {
+            classNumSelect.value = schoolCd;
+            console.log("自動絞り込み実行: classNum = " + schoolCd);
+            form.submit();
+        }
+    };
+</script>
+
 </body>
 </html>

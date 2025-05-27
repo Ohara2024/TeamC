@@ -3,45 +3,26 @@ package dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class Dao {
+    private static final Logger LOGGER = Logger.getLogger(Dao.class.getName());
+    private static final String URL = "jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE;AUTO_RECONNECT=TRUE";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "";
 
-    private static final String URL = "jdbc:h2:tcp://localhost/~/seiseki";
-
-    private static final String USER = "sa"; // デフォルトユーザー名
-
-    private static final String PASSWORD = ""; // デフォルトパスワード
-
-    protected Connection getConnection() throws Exception {
-
+    protected Connection getConnection() throws SQLException {
         try {
-
-            // H2 ドライバをロード（Java 6 以降は省略可能）
-
             Class.forName("org.h2.Driver");
-
-            // データベースに接続
-
             Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-
-            System.out.println("🔗 Dao: H2 データベースに接続成功");
-
+            LOGGER.info("🔗 Dao: H2 データベースに接続成功");
             return conn;
-
         } catch (SQLException e) {
-
-            System.out.println("❌ データベースエラー: " + e.getMessage());
-
-            throw new SQLException("Database connection failed", e);
-
+            LOGGER.severe("❌ データベースエラー: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+            throw new SQLException("Database connection failed: " + e.getMessage(), e);
         } catch (ClassNotFoundException e) {
-
-            System.out.println("❌ H2 ドライバが見つかりません: " + e.getMessage());
-
-            throw new Exception("H2 Driver not found", e);
-
+            LOGGER.severe("❌ H2 ドライバが見つかりません: " + e.getMessage());
+            throw new SQLException("H2 Driver not found: " + e.getMessage(), e);
         }
-
     }
-
 }

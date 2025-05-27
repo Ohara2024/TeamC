@@ -1,16 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.sql.*, scoremanager.main.DBConnection" %>
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8"> <!-- 文字エンコーディングをUTF-8に設定 -->
     <title>成績管理</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; }
         .main { padding: 20px; max-width: 800px; margin: 0 auto; background: #fff; border: 1px solid #ccc; }
         .filter-form { display: flex; gap: 10px; margin-bottom: 20px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; align-items: flex-end; justify-content: space-between; }
-        .filter-form .filter-group { display: flex; gap: 40px; }
+        .filter-form .filter-group { display: flex; gap: 20px; }
         .filter-form .filter-group div { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
         select, input[type="number"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; background-color: white; }
         table { border-collapse: collapse; width: 100%; border: 1px solid #ddd; }
@@ -20,11 +18,7 @@
     </style>
 </head>
 <body>
-<%@ include file="sidebar.jsp" %>
-<%@ include file="header.jsp" %>
-
 <div class="main">
-    <br><br><br><br>
     <!-- フィルタリングフォーム -->
     <form method="get" class="filter-form">
         <div class="filter-group">
@@ -37,7 +31,8 @@
                     Statement stmt = null;
                     ResultSet rs = null;
                     try {
-                        conn = DBConnection.getConnection();
+                        Class.forName("org.h2.Driver");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM STUDENT ORDER BY ENT_YEAR");
                         while(rs.next()) {
@@ -47,9 +42,9 @@
                     } catch(Exception e) {
                         out.println("エラー: " + e.getMessage());
                     } finally {
-                        if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
-                        if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
-                        if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
+                        if(rs != null) rs.close();
+                        if(stmt != null) stmt.close();
+                        if(conn != null) conn.close();
                     }
                     %>
                 </select>
@@ -60,7 +55,8 @@
                     <option value="">すべて</option>
                     <%
                     try {
-                        conn = DBConnection.getConnection();
+                        Class.forName("org.h2.Driver");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                         while(rs.next()) {
@@ -70,9 +66,9 @@
                     } catch(Exception e) {
                         out.println("エラー: " + e.getMessage());
                     } finally {
-                        if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
-                        if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
-                        if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
+                        if(rs != null) rs.close();
+                        if(stmt != null) stmt.close();
+                        if(conn != null) conn.close();
                     }
                     %>
                 </select>
@@ -83,20 +79,21 @@
                     <option value="">すべて</option>
                     <%
                     try {
-                        conn = DBConnection.getConnection();
+                        Class.forName("org.h2.Driver");
+                        conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                         stmt = conn.createStatement();
                         rs = stmt.executeQuery("SELECT DISTINCT CD, NAME FROM SUBJECT ORDER BY CD");
                         while(rs.next()) {
                             String cd = rs.getString("CD");
-                            String subjectName = rs.getString("NAME");
-                            out.println("<option value=\"" + cd + "\">" + subjectName + "</option>");
+                            String name = rs.getString("NAME");
+                            out.println("<option value=\"" + cd + "\">" + name + "</option>");
                         }
                     } catch(Exception e) {
                         out.println("エラー: " + e.getMessage());
                     } finally {
-                        if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
-                        if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
-                        if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
+                        if(rs != null) rs.close();
+                        if(stmt != null) stmt.close();
+                        if(conn != null) conn.close();
                     }
                     %>
                 </select>
@@ -117,14 +114,13 @@
 
     <!-- 点数更新処理 -->
     <%
-    response.setContentType("text/html; charset=UTF-8"); // レスポンスのエンコーディングを明示
     if("POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("action") != null && request.getParameter("action").equals("update")) {
         Connection connUpdate = null;
-        PreparedStatement pstmt = null;
         try {
-            connUpdate = DBConnection.getConnection();
+            Class.forName("org.h2.Driver");
+            connUpdate = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
             String sql = "UPDATE TEST SET POINT = ? WHERE STUDENT_NO = ? AND SUBJECT_CD = ? AND SCHOOL_CD = ? AND NO = ?";
-            pstmt = connUpdate.prepareStatement(sql);
+            PreparedStatement pstmt = connUpdate.prepareStatement(sql);
 
             int index = 0;
             while(request.getParameter("point[" + index + "]") != null) {
@@ -146,8 +142,7 @@
         } catch(Exception e) {
             out.println("更新エラー: " + e.getMessage());
         } finally {
-            if(pstmt != null) try { pstmt.close(); } catch(SQLException ignored) {}
-            if(connUpdate != null) try { connUpdate.close(); } catch(SQLException ignored) {}
+            if(connUpdate != null) connUpdate.close();
         }
     }
     %>
@@ -160,7 +155,7 @@
                               request.getParameter("no") != null;
     if(hasSearchParams) {
     %>
-    <form method="post" action="seiseki_regist.jsp">
+    <form method="post" action="seiseki_register.jsp">
         <table>
             <tr>
                 <th>入学年度</th>
@@ -172,7 +167,8 @@
             </tr>
             <%
             try {
-                conn = DBConnection.getConnection();
+                Class.forName("org.h2.Driver");
+                conn = DriverManager.getConnection("jdbc:h2:~/exam", "sa", "");
                 stmt = conn.createStatement();
 
                 StringBuilder query = new StringBuilder("SELECT T.STUDENT_NO, T.SUBJECT_CD, T.SCHOOL_CD, T.NO, T.POINT, T.CLASS_NUM, S.NAME AS SUBJECT_NAME, ST.ENT_YEAR, ST.NAME AS STUDENT_NAME ");
@@ -215,9 +211,9 @@
             } catch(Exception e) {
                 out.println("検索エラー: " + e.getMessage());
             } finally {
-                if(rs != null) try { rs.close(); } catch(SQLException ignored) {}
-                if(stmt != null) try { stmt.close(); } catch(SQLException ignored) {}
-                if(conn != null) try { conn.close(); } catch(SQLException ignored) {}
+                if(rs != null) rs.close();
+                if(stmt != null) stmt.close();
+                if(conn != null) conn.close();
             }
             %>
         </table>
@@ -230,6 +226,5 @@
     }
     %>
 </div>
-<%@ include file="footer.jsp" %>
 </body>
 </html>
