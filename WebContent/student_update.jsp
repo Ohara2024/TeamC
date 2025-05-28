@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="seiseki.StudentListAction.Student, seiseki.StudentUpdateAction.ClassNum, java.util.List" %>
+<%@ page import="java.sql.*, java.util.*" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -36,35 +36,109 @@
         <br><br><br><br>
         <h1>学生情報更新</h1>
 
-        <% String error = (String) request.getAttribute("error"); %>
+        <%
+        String error = null;
+        Map<String, Object> student = null;
+        List<Map<String, String>> classNumbers = new ArrayList<>();
+        String studentNo = request.getParameter("studentNo");
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int reconnectAttempts = 0;
+        boolean connected = false;
+
+        while (reconnectAttempts < 3) {
+            try {
+                Class.forName("org.h2.Driver");
+                conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/exam;IFEXISTS=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "");
+                conn.setAutoCommit(true);
+
+                // 学生情報取得
+                if (studentNo != null && !studentNo.isEmpty()) {
+                    pstmt = conn.prepareStatement("SELECT NO, ENT_YEAR, NAME, CLASS_NUM, SCHOOL_CD FROM STUDENT WHERE NO = ?");
+                    pstmt.setString(1, studentNo);
+                    rs = pstmt.executeQuery();
+                    if (rs.next()) {
+                        student = new HashMap<>();
+                        student.put("NO", rs.getString("NO"));
+                        student.put("ENT_YEAR", rs.getInt("ENT_YEAR"));
+                        student.put("NAME", rs.getString("NAME"));
+                        student.put("CLASS_NUM", rs.getString("CLASS_NUM"));
+                        student.put("SCHOOL_CD", rs.getString("SCHOOL_CD"));
+                    } else {
+                        error = "指定された学生が見つかりません。";
+                    }
+                    rs.close();
+                    pstmt.close();
+                } else {
+                    error = "学生番号が指定されていません。";
+                }
+
+                // クラス一覧取得
+                pstmt = conn.prepareStatement("SELECT CLASS_NUM, SCHOOL_CD FROM CLASS_NUM ORDER BY CLASS_NUM");
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    Map<String, String> classNum = new HashMap<>();
+                    classNum.put("CLASS_NUM", rs.getString("CLASS_NUM"));
+                    classNum.put("SCHOOL_CD", rs.getString("SCHOOL_CD"));
+                    classNumbers.add(classNum);
+                }
+                connected = true;
+                break;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                if (e.getErrorCode() == 90020) {
+                    reconnectAttempts++;
+                    if (reconnectAttempts < 3) {
+                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                        continue;
+                    }
+                }
+                error = "データ取得エラー: " + e.getMessage();
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+                error = "データ取得エラー: " + e.getMessage();
+                break;
+            } finally {
+                if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+                if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+                if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+            }
+        }
+        if (!connected) {
+            error = "データ取得に失敗しました。データベース接続を確認してください。";
+        }
+        %>
+
         <% if (error != null) { %>
             <p class="error"><%= error %></p>
         <% } %>
 
-        <% Student student = (Student) request.getAttribute("student"); %>
         <% if (student == null) { %>
             <p class="error">指定された学生が見つかりません。</p>
         <% } else { %>
             <form action="StudentUpdateExecuteAction" method="post" onsubmit="return validateForm()">
-                <input type="hidden" name="student_number" value="<%= student.getNo() %>">
-                <input type="hidden" name="ent_year" value="<%= student.getEntYear() %>">
-                <input type="hidden" name="school_cd" id="school_cd" value="<%= student.getSchoolCd() != null ? student.getSchoolCd() : "" %>">
+                <input type="hidden" name="student_number" value="<%= student.get("NO") %>">
+                <input type="hidden" name="ent_year" value="<%= student.get("ENT_YEAR") %>">
+                <input type="hidden" name="school_cd" id="school_cd" value="<%= student.get("SCHOOL_CD") != null ? student.get("SCHOOL_CD") : "" %>">
 
                 <div class="form-group">
                     <label for="ent_year">入学年度<br>
-                    <span class="readonly"><%= student.getEntYear() %></span>
+                    <span class="readonly"><%= student.get("ENT_YEAR") %></span>
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label for="student_number">学生番号<br>
-                    <span class="readonly"><%= student.getNo() %></span>
+                    <span class="readonly"><%= student.get("NO") %></span>
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label for="name">氏名
-                    <input type="text" name="name" id="name" value="<%= student.getName() != null ? student.getName() : "" %>" required />
+                    <input type="text" name="name" id="name" value="<%= student.get("NAME") != null ? student.get("NAME") : "" %>" required />
                     </label>
                 </div>
 
@@ -72,15 +146,13 @@
                     <label for="class_num">クラス
                     <select name="class_num" id="class_num" required onchange="updateSchoolCd()">
                         <option value="">------</option>
-                        <% List<ClassNum> classNumbers = (List<ClassNum>) request.getAttribute("classNumbers");
-                           String inputClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : student.getClassNum();
-                           if (classNumbers != null) {
-                               for (ClassNum classNum : classNumbers) {
-                                   String selected = (inputClassNum != null && classNum.getClassNum() != null && classNum.getClassNum().equals(inputClassNum)) ? "selected" : "";
+                        <%
+                        String inputClassNum = request.getParameter("class_num") != null ? request.getParameter("class_num") : (String)student.get("CLASS_NUM");
+                        for (Map<String, String> classNum : classNumbers) {
+                            String selected = (inputClassNum != null && classNum.get("CLASS_NUM") != null && classNum.get("CLASS_NUM").equals(inputClassNum)) ? "selected" : "";
                         %>
-                            <option value="<%= classNum.getClassNum() != null ? classNum.getClassNum() : "" %>" data-school-cd="<%= classNum.getSchoolCd() != null ? classNum.getSchoolCd() : "" %>" <%= selected %>><%= classNum.getClassNum() != null ? classNum.getClassNum() : "" %></option>
-                        <%   }
-                           } %>
+                            <option value="<%= classNum.get("CLASS_NUM") != null ? classNum.get("CLASS_NUM") : "" %>" data-school-cd="<%= classNum.get("SCHOOL_CD") != null ? classNum.get("SCHOOL_CD") : "" %>" <%= selected %>><%= classNum.get("CLASS_NUM") != null ? classNum.get("CLASS_NUM") : "" %></option>
+                        <% } %>
                     </select>
                     </label>
                 </div>

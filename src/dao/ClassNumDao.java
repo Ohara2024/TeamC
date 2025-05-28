@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.naming.NamingException;
-
 import bean.ClassNum;
 
 /**
@@ -21,9 +19,9 @@ public class ClassNumDao extends Dao {
     /**
      * クラス番号を全件取得
      * @return クラス番号リスト
-     * @throws Exception
+     * @throws SQLException データベース操作エラー
      */
-    public List<ClassNum> findAll() throws Exception {
+    public List<ClassNum> findAll() throws SQLException {
         List<ClassNum> classNums = new ArrayList<>();
         String sql = "SELECT SCHOOL_CD, CLASS_NUM FROM CLASS_NUM";
         try (Connection conn = getConnection();
@@ -38,15 +36,12 @@ public class ClassNumDao extends Dao {
                     classNum.setClassNum(classNumValue);
                     classNums.add(classNum);
                 } else {
-                    LOGGER.warning("無効なデータが検出されました: SCHOOL_CDまたはCLASS_NUMがnullです。");
+                    LOGGER.warning("無効なデータが検出されました: SCHOOL_CD=" + schoolCd + ", CLASS_NUM=" + classNumValue);
                 }
             }
             LOGGER.info("クラス番号を" + classNums.size() + "件取得しました。");
         } catch (SQLException e) {
-            LOGGER.severe("データベース操作に失敗しました: " + e.getMessage());
-            throw e;
-        } catch (NamingException e) {
-            LOGGER.severe("JNDIルックアップに失敗しました: " + e.getMessage());
+            LOGGER.severe("データベース操作に失敗しました: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
             throw e;
         }
         return classNums;

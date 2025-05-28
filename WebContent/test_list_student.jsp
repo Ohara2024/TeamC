@@ -71,7 +71,7 @@
                 ResultSet rs = null;
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam;CHARACTER_ENCODING=UTF8", "sa", "");
                     stmt = conn.createStatement();
                     rs = stmt.executeQuery("SELECT DISTINCT ENT_YEAR FROM Student WHERE ENT_YEAR IS NOT NULL ORDER BY ENT_YEAR");
                     while (rs.next()) {
@@ -94,7 +94,7 @@
                 <%
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam;CHARACTER_ENCODING=UTF8", "sa", "");
                     stmt = conn.createStatement();
                     rs = stmt.executeQuery("SELECT CLASS_NUM FROM CLASS_NUM ORDER BY CLASS_NUM");
                     while (rs.next()) {
@@ -117,7 +117,7 @@
                 <%
                 try {
                     Class.forName("org.h2.Driver");
-                    conn = DriverManager.getConnection("jdbc:h2:~/seiseki;CHARACTER_ENCODING=UTF8", "sa", "");
+                    conn = DriverManager.getConnection("jdbc:h2:~/exam;CHARACTER_ENCODING=UTF8", "sa", "");
                     stmt = conn.createStatement();
                     rs = stmt.executeQuery("SELECT SCHOOL_CD, CD, NAME AS SUBJECT_NAME FROM SUBJECT ORDER BY SCHOOL_CD, CD");
                     while (rs.next()) {
