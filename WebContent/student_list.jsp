@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ page import="java.util.*, scoremanager.main.StudentListAction.Student" %>
+<%@ page import="java.util.List, bean.Student" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -34,15 +34,12 @@
 
 <div class="content">
     <br><br><br><br>
-    <h1>学生一覧</h1>
+    <h1>学生管理</h1>
 
     <!-- 新規登録リンク -->
     <div class="top-actions">
-        <a href="StudentCreateAction">新規登録</a>
+        <a href="StudentCreateAction" class="action-btn">新規登録</a>
     </div>
-
-    <!-- セッションからschoolCdを取得 -->
-    <% String schoolCd = (String) session.getAttribute("schoolCd"); %>
 
     <!-- 絞り込みフォーム -->
     <form action="StudentListAction" method="get" id="filterForm">
@@ -68,16 +65,14 @@
                     <option value="">--------</option>
                     <%
                     String selectedClass = (String) request.getAttribute("classNum");
-                    // 初回ロード時にschoolCdをデフォルトとして設定
-                    if (selectedClass == null || selectedClass.isEmpty()) {
-                        selectedClass = schoolCd != null ? schoolCd : "";
-                    }
+                    String schoolCd = (String) session.getAttribute("schoolCd");
+                    if (selectedClass == null) selectedClass = schoolCd != null ? schoolCd : "";
                     String[][] classOptions = {
                         {"101", "101"},
                         {"131", "131"},
                         {"201", "201"},
-                        {"tky", "東京"},
-                        {"oom", "大宮"}
+                        {"oom", "大宮"},
+                        {"tky", "東京"}
                     };
                     for (String[] option : classOptions) {
                         String value = option[0];
@@ -95,7 +90,7 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="絞り込み" id="filterSubmit">
+                <input type="submit" value="絞り込み">
             </div>
         </div>
     </form>
