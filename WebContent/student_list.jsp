@@ -1,9 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<<<<<<< HEAD
 <%@ page import="java.util.List, bean.Student" %>
-=======
 <%@ page import="java.util.*, scoremanager.main.StudentListAction.Student" %>
->>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
 <!DOCTYPE html>
 <html lang="ja">
 <head>
