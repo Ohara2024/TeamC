@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import bean.Test;
 import dao.TestDao;
+import tool.Action;
 
 /**
  * テスト登録の実行処理を行うアクション

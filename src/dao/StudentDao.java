@@ -36,17 +36,26 @@ public class StudentDao extends Dao {
                     student.setSchoolCd(schoolCd);
                     students.add(student);
                 } else {
+<<<<<<< HEAD
                     LOGGER.warning("無効な学生データ: NO=" + no + ", NAME=" + name + ", CLASS_NUM=" + classNum + ", SCHOOL_CD=" + schoolCd + ", ENT_YEAR=" + entYear);
+=======
+                    LOGGER.warning("無効な学生データが検出されました: NO=" + no + ", NAME=" + name + ", CLASS_NUM=" + classNum + ", SCHOOL_CD=" + schoolCd + ", ENT_YEAR=" + entYear);
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
                 }
             }
             LOGGER.info("学生を" + students.size() + "件取得しました。");
         } catch (SQLException e) {
+<<<<<<< HEAD
             LOGGER.severe("データベースエラー: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+=======
+            LOGGER.severe("データベース操作に失敗しました: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
             throw e;
         }
         return students;
     }
 
+<<<<<<< HEAD
     public List<Student> filter(String entYear, String classNum, Boolean isAttend, String schoolCd) throws SQLException {
         List<Student> students = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT NO, NAME, ENT_YEAR, CLASS_NUM, IS_ATTEND, SCHOOL_CD FROM STUDENT WHERE 1=1");
@@ -170,6 +179,8 @@ public class StudentDao extends Dao {
         return classNumbers;
     }
 
+=======
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
     public void insert(Student student) throws SQLException {
         if (student.getNo() == null || student.getName() == null || student.getClassNum() == null ||
             student.getSchoolCd() == null || student.getEntYear() <= 0) {
@@ -187,7 +198,11 @@ public class StudentDao extends Dao {
             int rowsAffected = pstmt.executeUpdate();
             LOGGER.info("学生番号 " + student.getNo() + " の学生を追加しました。Rows affected: " + rowsAffected);
         } catch (SQLException e) {
+<<<<<<< HEAD
             LOGGER.severe("データベースエラー: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+=======
+            LOGGER.severe("学生の追加に失敗しました: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
             throw e;
         }
     }
@@ -213,7 +228,11 @@ public class StudentDao extends Dao {
                 LOGGER.warning("学生番号 " + student.getNo() + " の更新対象が見つかりませんでした。");
             }
         } catch (SQLException e) {
+<<<<<<< HEAD
             LOGGER.severe("データベースエラー: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+=======
+            LOGGER.severe("学生の更新に失敗しました: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
             throw e;
         }
     }
@@ -233,7 +252,11 @@ public class StudentDao extends Dao {
                 LOGGER.warning("学生番号 " + no + " の削除対象が見つかりませんでした。");
             }
         } catch (SQLException e) {
+<<<<<<< HEAD
             LOGGER.severe("データベースエラー: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+=======
+            LOGGER.severe("学生の削除に失敗しました: SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode() + ", Message=" + e.getMessage());
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
             throw e;
         }
     }

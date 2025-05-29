@@ -1,5 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<<<<<<< HEAD
 <%@ page import="java.util.List, bean.Student" %>
+=======
+<%@ page import="java.util.*, scoremanager.main.StudentListAction.Student" %>
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -41,6 +45,9 @@
         <a href="StudentCreateAction" class="action-btn">新規登録</a>
     </div>
 
+    <!-- セッションからschoolCdを取得 -->
+    <% String schoolCd = (String) session.getAttribute("schoolCd"); %>
+
     <!-- 絞り込みフォーム -->
     <form action="StudentListAction" method="get" id="filterForm">
         <div class="filter-box">
@@ -65,6 +72,7 @@
                     <option value="">--------</option>
                     <%
                     String selectedClass = (String) request.getAttribute("classNum");
+<<<<<<< HEAD
                     String schoolCd = (String) session.getAttribute("schoolCd");
                     if (selectedClass == null) selectedClass = schoolCd != null ? schoolCd : "";
                     String[][] classOptions = {
@@ -73,6 +81,18 @@
                         {"201", "201"},
                         {"oom", "大宮"},
                         {"tky", "東京"}
+=======
+                    // 初回ロード時にschoolCdをデフォルトとして設定
+                    if (selectedClass == null || selectedClass.isEmpty()) {
+                        selectedClass = schoolCd != null ? schoolCd : "";
+                    }
+                    String[][] classOptions = {
+                        {"101", "101"},
+                        {"131", "131"},
+                        {"201", "201"},
+                        {"tky", "東京"},
+                        {"oom", "大宮"}
+>>>>>>> branch 'TeamCマージ' of https://github.com/Ohara2024/TeamC
                     };
                     for (String[] option : classOptions) {
                         String value = option[0];
@@ -90,7 +110,7 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="絞り込み">
+                <input type="submit" value="絞り込み" id="filterSubmit">
             </div>
         </div>
     </form>
