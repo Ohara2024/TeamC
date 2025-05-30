@@ -5,11 +5,13 @@
 <meta charset="UTF-8">
 <title>得点管理システム</title>
 <style>
+
         body {
             font-family: "Segoe UI", sans-serif;
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
+
         }
         .header {
             background-color: #e9edf4;
@@ -66,35 +68,32 @@
 </style>
 </head>
 <body>
+
     <div class="header">得点管理システム</div>
 
-    <div class="login-box">
-        <h2>ログイン</h2>
-        <% String error = (String) request.getAttribute("error"); %>
-        <% if (error != null) { %>
-            <div style="color: red; text-align: center; margin-bottom: 10px;">
-                <%= error %>
-            </div>
-        <% } %>
+<div class="login-box">
+<h2>ログイン</h2>
+<% String error = (String) request.getAttribute("error"); %>
+<% if (error != null) { %>
+<div style="color: red; text-align: center; margin-bottom: 10px;">
+<%= error %>
+</div>
+<% } %>
 
-        <!-- 修正: action属性はrequest.getContextPath()を使用し、動的にコンテキストパスを取得 -->
-        <!-- 注意: 404エラーが続く場合、Tomcatのwebapps/TeamC/またはTeamC.warが正しくデプロイされているか確認してください -->
-        <!-- 例: http://localhost:8080/TeamC/FrontController にアクセス可能かテスト -->
-        <form action="<%= request.getContextPath() %>/FrontController" method="post">
-            <input type="hidden" name="action" value="main.Login">
-            <input type="text" name="id" class="form-control" placeholder="ID" required>
-            <input type="password" name="password" class="form-control" id="passwordField" placeholder="パスワード" required>
-            <div class="checkbox-area">
-                <input type="checkbox" onclick="togglePassword()"> パスワードを表示
-            </div>
-            <input type="submit" value="ログイン" class="login-button">
-        </form>
 
-        <div class="footer">
-            © 2023 TIC<br>大原学園
-        </div>
-    </div>
+       <form action="<%= request.getContextPath() %>/FrontController" method="post">
+<input type="hidden" name="action" value="main.Login">
 
+    <input type="text" name="id" class="form-control" placeholder="ID" required>
+<input type="password" name="password" class="form-control" id="passwordField" placeholder="パスワード" required>
+    <div class="checkbox-area">
+<input type="checkbox" onclick="togglePassword()"> パスワードを表示
+</div>
+<input type="submit" value="ログイン" class="login-button">
+</form>
+    <div class="footer">
+        © 2023 TIC<br>大原学園
+</div>
     <script>
         function togglePassword() {
             var field = document.getElementById("passwordField");
@@ -104,6 +103,7 @@
                 field.type = "password";
             }
         }
-    </script>
+</script>
+</div>
 </body>
 </html>
