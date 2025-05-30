@@ -142,7 +142,7 @@
                 pstmt.executeUpdate();
                 index++;
             }
-            response.sendRedirect("seiseki_regist_done.jsp");
+            response.sendRedirect("test_regist_done.jsp");
         } catch(Exception e) {
             out.println("更新エラー: " + e.getMessage());
         } finally {
@@ -160,7 +160,7 @@
                               request.getParameter("no") != null;
     if(hasSearchParams) {
     %>
-    <form method="post" action="seiseki_regist.jsp">
+    <form method="post" action="test_regist.jsp">
         <table>
             <tr>
                 <th>入学年度</th>

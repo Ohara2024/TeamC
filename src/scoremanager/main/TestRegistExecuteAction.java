@@ -15,10 +15,10 @@ import dao.TestDao;
 /**
  * テスト登録の実行処理を行うアクション
  */
-@WebServlet("/TestRegisterExecute.action")
-public class TestRegisterExecuteAction extends TestRegisterAction {
+@WebServlet("/TestRegistExecute.action")
+public class TestRegistExecuteAction extends TestRegistAction {
     @Override
-    protected void executeRegister(HttpServletRequest request, HttpServletResponse response)
+    protected void executeRegist(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // リクエストからパラメータを取得
         String studentNo = request.getParameter("studentNo");
@@ -33,7 +33,7 @@ public class TestRegisterExecuteAction extends TestRegisterAction {
             if (studentNo == null || subjectCd == null || schoolCd == null || classNum == null ||
                 noStr == null || pointStr == null) {
                 request.setAttribute("error", "無効な入力です。すべての項目を入力してください。");
-                request.getRequestDispatcher("/seiseki_regist.jsp").forward(request, response);
+                request.getRequestDispatcher("/test_regist.jsp").forward(request, response);
                 return;
             }
 
@@ -42,7 +42,7 @@ public class TestRegisterExecuteAction extends TestRegisterAction {
 
             if (no <= 0 || point < 0 || point > 100) {
                 request.setAttribute("error", "無効な入力です。得点は0～100の範囲で、テスト回数は1以上で入力してください。");
-                request.getRequestDispatcher("/seiseki_regist.jsp").forward(request, response);
+                request.getRequestDispatcher("/test_regist.jsp").forward(request, response);
                 return;
             }
 
@@ -65,6 +65,6 @@ public class TestRegisterExecuteAction extends TestRegisterAction {
             request.setAttribute("error", "登録に失敗しました: データベースエラー");
         }
 
-        request.getRequestDispatcher("/seiseki_regist.jsp").forward(request, response);
+        request.getRequestDispatcher("/test_regist.jsp").forward(request, response);
     }
 }

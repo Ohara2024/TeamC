@@ -10,22 +10,22 @@ import javax.swing.Action;
 /**
  * テスト登録の基底アクション
  */
-public abstract class TestRegisterAction implements Action {
+public abstract class TestRegistAction implements Action {
     public void execute(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // 基底アクションでの共通処理（必要に応じて）
         String actionType = request.getParameter("actionType");
         if ("execute".equals(actionType)) {
-            executeRegister(request, response);
+            executeRegist(request, response);
         } else {
             // デフォルトの表示処理（例：登録フォームの表示）
-            request.getRequestDispatcher("/test_register.jsp").forward(request, response);
+            request.getRequestDispatcher("/test_regist.jsp").forward(request, response);
         }
     }
 
     /**
      * テスト登録の実行処理（サブクラスで実装）
      */
-    protected abstract void executeRegister(HttpServletRequest request, HttpServletResponse response)
+    protected abstract void executeRegist(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException;
 }
