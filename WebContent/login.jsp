@@ -71,7 +71,7 @@
 
     <div class="header">得点管理システム</div>
 
-    <div class="login-box">
+<div class="login-box">
 <h2>ログイン</h2>
 <% String error = (String) request.getAttribute("error"); %>
 <% if (error != null) { %>
@@ -79,7 +79,6 @@
 <%= error %>
 </div>
 <% } %>
-
 
        <form action="<%= request.getContextPath() %>/FrontController" method="post">
 <input type="hidden" name="action" value="main.Login">
@@ -104,5 +103,6 @@
             }
         }
 </script>
+</div>
 </body>
 </html>
