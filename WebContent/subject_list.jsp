@@ -62,7 +62,6 @@
         List<Subject> subjects = (List<Subject>) request.getAttribute("subjects");
         String error = (String) request.getAttribute("error");
 
-        // デバッグ出力（本番では削除してください）
         System.out.println("subject_list.jsp: subjects=" + (subjects != null ? subjects.size() : "null"));
         System.out.println("subject_list.jsp: error=" + error);
     %>

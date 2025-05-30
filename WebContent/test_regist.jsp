@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.sql.*, scoremanaager.main.DBConnection" %>
+<%@ page import="java.sql.*, acoremnager.main.DBConnection" %>
 
 <!DOCTYPE html>
 <html>

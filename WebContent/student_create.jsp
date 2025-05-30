@@ -55,7 +55,7 @@
                     String selectedYear = request.getParameter("entrance_year");
                     for (int year = 2020; year <= 2030; year++) {
                         String selected = (selectedYear != null && selectedYear.equals(String.valueOf(year))) ? "selected" : "";
-                        out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
+						out.println("<option value='" + year + "' " + selected + ">" + year + "</option>");
                     }
                     %>
                 </select>
